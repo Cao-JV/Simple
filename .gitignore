@@ -2,3 +2,5 @@ IO/Terminal/cmake_install.cmake
 IO/Terminal/CMakeCache.txt
 IO/Terminal/Makefile
 IO/Terminal/CMakeFiles/
+IO/Terminal/Terminal
+IO/Terminal/main

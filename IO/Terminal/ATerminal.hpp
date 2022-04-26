@@ -75,9 +75,9 @@
                                         ,m_IsBlinkOn        = false
                                         ,m_IsEchoOn         = false;
                     TerminalColourMode    m_ColourMode       = Modern;
-                    virtual void Initialize() = 0;
-                    virtual wchar_t Translate(const wchar_t Char) = 0;
-                    virtual std::wstring Translate(const std::wstring) = 0;
+                    virtual void _initialize() = 0;
+                    virtual wchar_t _translate(const wchar_t Char) = 0;
+                    virtual std::wstring _translate(const std::wstring) = 0;
             };
         }
 
