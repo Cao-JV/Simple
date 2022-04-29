@@ -55,13 +55,10 @@
                     virtual void RestoreXY() = 0;
                     virtual void SetForegroundColour(const int ForegroundColour) = 0;
                     virtual void SetBackgroundColour(const int BackgroundColour) = 0;
-                    virtual void SetBlink(bool Blink) = 0;
-                    virtual void SetEcho(bool Echo) = 0;
-                    virtual bool IsBlinkOn() = 0;
-                    virtual bool IsEchoOn() = 0;
-                    virtual bool IsExtendedASCIIOn() = 0;
-                    virtual TerminalColourMode GetConsoleColourMode() = 0;
-                    virtual void SetConsoleColourMode(const TerminalColourMode Mode) = 0;
+                    virtual void SetTerminalAttribute(const TerminalAttributes Attribute, bool State) = 0;
+                    virtual void SetConsoleColourMode(const TerminalColourModes Mode) = 0;
+                    virtual TerminalColourModes GetConsoleColourMode() = 0;
+                    virtual bool IsTerminalAttributeOn(const TerminalAttributes Attribute) = 0;
                 protected:
                     int                  m_SavedX
                                         ,m_SavedY
@@ -69,12 +66,10 @@
                                         ,m_CurrentY
                                         ,m_MaxX
                                         ,m_MaxY
-                                        ,m_ForegroundColour
-                                        ,m_BackgroundColour;
-                    bool                 m_IsExtendedASCIIOn= true
-                                        ,m_IsBlinkOn        = false
-                                        ,m_IsEchoOn         = false;
-                    TerminalColourMode    m_ColourMode       = Modern;
+                                        ,m_ForegroundColour = 7
+                                        ,m_BackgroundColour   = 0;
+                    TerminalColourModes   m_ColourMode         = TerminalColourModes::Modern;
+                    TerminalAttributes   m_TerminalAttributes = TerminalAttributes::Echo | TerminalAttributes::ExtendedAscii;
                     virtual void _initialize() = 0;
                     virtual wchar_t _translate(const wchar_t Char) = 0;
                     virtual std::wstring _translate(const std::wstring) = 0;
