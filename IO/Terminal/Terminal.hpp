@@ -52,10 +52,11 @@
                     virtual void PrintLn(const wchar_t *Format, ...);
                     virtual void PrintLn(const std::wstring Format, ...);
                     virtual int  GetChar(const int TimeOutMS = 0);
+                    virtual void SetMaxXY(const int X, const int Y);
                     virtual void GetMaxXY(int &X, int &Y);
                     virtual void GetXY(int &X, int &Y);
-                    virtual void SetMaxXY(const int X, const int Y);
-                    virtual void SetXY(const int X, const int Y);
+                    virtual void CursorMove(const int Value, const TerminalCursorMovement Movement);
+                    virtual void SetXY(const int X, const int Y, const bool AsEdit = true);
                     virtual void SaveXY();
                     virtual void RestoreXY();
                     virtual void SetForegroundColour(const int ForegroundColour);

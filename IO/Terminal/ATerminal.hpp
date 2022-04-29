@@ -48,9 +48,10 @@
                     virtual void PrintLn(const std::wstring Format, ...) = 0;
                     virtual int  GetChar(const int TimeOutMS = 0) = 0;
                     virtual void GetMaxXY(int &X, int &Y) = 0;
-                    virtual void GetXY(int &X, int &Y) = 0;
                     virtual void SetMaxXY(const int X, const int Y) = 0;
-                    virtual void SetXY(const int X, const int Y) = 0;
+                    virtual void CursorMove(const int Value, const TerminalCursorMovement Movement) = 0;
+                    virtual void GetXY(int &X, int &Y) = 0;
+                    virtual void SetXY(const int X, const int Y, const bool AsEdit = true) = 0;
                     virtual void SaveXY() = 0;
                     virtual void RestoreXY() = 0;
                     virtual void SetForegroundColour(const int ForegroundColour) = 0;
@@ -66,9 +67,9 @@
                                         ,m_CurrentY
                                         ,m_MaxX
                                         ,m_MaxY
-                                        ,m_ForegroundColour = 7
+                                        ,m_ForegroundColour   = 7
                                         ,m_BackgroundColour   = 0;
-                    TerminalColourModes   m_ColourMode         = TerminalColourModes::Modern;
+                    TerminalColourModes   m_ColourMode        = TerminalColourModes::Modern;
                     TerminalAttributes   m_TerminalAttributes = TerminalAttributes::Echo | TerminalAttributes::ExtendedAscii;
                     virtual void _initialize() = 0;
                     virtual wchar_t _translate(const wchar_t Char) = 0;
