@@ -12,6 +12,6 @@ project(Terminal)
 
 # add the executable
 include_directories(${PROJECT_SOURCE_DIR} /usr/include)
-add_executable(Terminal ATerminal.cpp Terminal.cpp main.cpp)
+add_executable(Terminal src/ATerminal.cpp src/Terminal.cpp src/main.cpp)
 
 
