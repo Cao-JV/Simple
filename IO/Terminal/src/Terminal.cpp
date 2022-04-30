@@ -32,11 +32,16 @@
 #include <stdarg.h>
 #include <chrono>
 
+#ifdef __linux__
+    #include <sys/ioctl.h> 
+    #include <unistd.h> 
+#endif
+
 using std::wcout;
 using std::wcin;
-using std::cout;
 using std::endl;
 using std::chrono::steady_clock;
+using std::wstring;
 
 namespace Simple {
     namespace IO {
@@ -178,8 +183,12 @@ namespace Simple {
          }
 
          void Terminal::GetMaxXY(int &X, int &Y) {
-             X = this->m_MaxX;
-             Y = this->m_MaxY;
+            struct winsize result;
+            // Not standard POSIX - Use Linux, anyway.
+            ioctl(STDOUT_FILENO, TIOCGWINSZ, &result);
+
+             X = this->m_MaxX = result.ws_col;
+             Y = this->m_MaxY = result.ws_row;
          }
          void Terminal::GetXY(int &X, int &Y) {
              X = 0;
@@ -213,7 +222,7 @@ namespace Simple {
                                 // Derive those colours from a less confusing scale of 0 to 15. It's broken like this because we used to have 2bit colour capability*.
                                 int newColour = ((ForegroundColour < 8) ? ForegroundColour + 30 : ForegroundColour + 82);
                                 std::wstring colourData;
-                                colourData.append(L"0;").append(std::to_wstring(newColour));
+                                colourData.append(std::to_wstring(newColour));
                                 this->_sendCommand('m', colourData);
                         }
                         break;
@@ -325,6 +334,6 @@ namespace Simple {
 
 } // NS: Simple
 
-
+// * It was actually 3bit colour, but that ruined the wordplay.
 
 

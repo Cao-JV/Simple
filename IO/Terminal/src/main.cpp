@@ -44,6 +44,8 @@ using Simple::IO::ASCIIToUTF8Chars;
 int main(int argc, char** argv) {
     // Need to set this so basic IO works!
     std::setlocale(LC_ALL, "en_US.utf8"); 
+    int x = 0
+       ,y = 0;
     // File to open   
     //string ansi_file = argv[1];
     // Open the filestream
@@ -55,39 +57,72 @@ int main(int argc, char** argv) {
     
     Terminal console(false,  "");
     console.ClearScreen();
+    console.SetXY(1,1);
+    console.SetForegroundColour(7);
+    console.SetBackgroundColour(0);
+    console.Print(L"Welcome to SimpleConsole...\nExtended (8bit)ANSI/Extended (8bit)ASCII Test:\n");
+    console.Print(L"Foreground:\n");
     for (int index = 0; index < 16; index++) {
         for (int offset = 0; offset < 16; offset++) {
             int code = index * 16 + offset;
-            console.Print(L"\u001b[38;5;%im%c", code, code);
+            console.Print(L"\u001b[38;5;%im%c ", code, code);
         }   
     }
+    console.Print(L"\nPress a key to continue...");
+    console.GetChar();
+    console.Print(L"Background:\n");
+    for (int index = 0; index < 16; index++) {
+        for (int offset = 0; offset < 16; offset++) {
+            int code = index * 16 + offset;
+            console.Print(L"\u001b[48;5;%im%c ", code, code);
+        }   
+    }
+    console.SetForegroundColour(7);
+    console.SetBackgroundColour(0);
+    console.Print(L"\nPress a key to continue...");
+    console.GetChar();
+    console.Print(L"\nLegacy ANSI (3bit)\n");
     console.SetConsoleColourMode(Simple::IO::TerminalColourModes::Legacy) ;
-    console.Print(L'\n');
+    console.Print(L"Foreground\n");
+    for (int foreIndex = 0; foreIndex < 16; foreIndex++)  {
+        console.SetForegroundColour(foreIndex);
+        if (foreIndex < 10) { console.Print(L' '); }
+        console.Print(L"%i ", foreIndex);
+    }
+    console.SetForegroundColour(7);
+    console.SetBackgroundColour(0);
+    console.Print(L"\nPress a key to continue...");
+    console.GetChar();
+    console.Print(L"\nBackground:\n");
     for (int backIndex  = 0; backIndex < 16; backIndex++) {
         console.SetBackgroundColour(backIndex);
-        for (int foreIndex = 0; foreIndex < 16; foreIndex++)  {
-            console.SetForegroundColour(foreIndex);
-            console.Print(L"%i\t", foreIndex);
-        }
+        if (backIndex < 10) { console.Print(L' '); }
+        console.Print(L"%i ", backIndex);
     }
+    console.SetForegroundColour(7);
+    console.SetBackgroundColour(0);
+    console.Print(L"\nPress a key to continue...");
+    console.GetChar();
     wcout << endl;
-    console.CursorMove(2, Simple::IO::TerminalCursorMovement::ScrollUp);
-    // console.SetXY(1,5);
-    console.Print(L"Input:");
-    for (int index = 0; index < 80; index++) {
-        console.Print((wchar_t)196);
-    }
+    console.GetMaxXY(x, y);
+    console.Print(L"Your Terminal is %i columns by %i rows\n", x,y);
+    console.Print(L"\nPress a key to continue...");
+    console.GetChar();
+    console.CursorMove(5, Simple::IO::TerminalCursorMovement::Right);
+    console.Print(L"Cursor has been moved right 5\nInput 1 Char (No cursor):");
     console.SetTerminalAttribute(Simple::IO::TerminalAttributes::Cursor, false);
     console.GetChar(10);
     console.SetTerminalAttribute(Simple::IO::TerminalAttributes::Cursor, true);
     console.CursorMove(8, Simple::IO::TerminalCursorMovement::Up);
-    console.Print(L"Input:");
+    console.Print(L"Cursor has been moved up 8\nInput String 10 chars, enter terminated (Cursor):");
     wstring result = console.GetLine(10);
-    console.Print(result);
+    console.Print(L"\nYou said %s!", result.c_str());
     int colour = 6;
+    console.SetXY(1,1);
+    console.Print(L"Looping colour test...\n");
     console.SetTerminalAttribute(Simple::IO::TerminalAttributes::Cursor, false);
     for (int loops = 0; loops < 10000; loops++) {
-        console.SetXY(1,1);
+        console.SetXY(2,1);
         console.SetForegroundColour(colour);
         console.Print(L"Hello");
         if (colour == 6) {
@@ -98,6 +133,8 @@ int main(int argc, char** argv) {
         usleep(50);
     }
     console.SetTerminalAttribute(Simple::IO::TerminalAttributes::Cursor, true);
+    console.SetXY(1, 25);
+    console.Print(L"GoodBye!\n");
    /*
     for (unsigned char ch : content) {
         console.Print((wchar_t)ch);
