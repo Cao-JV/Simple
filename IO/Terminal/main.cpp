@@ -53,19 +53,56 @@ int main(int argc, char** argv) {
                          (std::istreambuf_iterator<char>()    ) );
     // Instantiate Terminal
     
-    Terminal console(true,  "");
-    
+    Terminal console(false,  "");
+    console.ClearScreen();
     for (int index = 0; index < 16; index++) {
         for (int offset = 0; offset < 16; offset++) {
             int code = index * 16 + offset;
             console.Print(L"\u001b[38;5;%im%c", code, code);
         }   
-    }   
-    
-    for (unsigned char ch : content) {
-             console.Print((wchar_t)ch);
-   //     usleep(300);
     }
-    
+    console.SetConsoleColourMode(Simple::IO::TerminalColourModes::Legacy) ;
+    console.Print(L'\n');
+    for (int backIndex  = 0; backIndex < 16; backIndex++) {
+        console.SetBackgroundColour(backIndex);
+        for (int foreIndex = 0; foreIndex < 16; foreIndex++)  {
+            console.SetForegroundColour(foreIndex);
+            console.Print(L"%i\t", foreIndex);
+        }
+    }
+    wcout << endl;
+    console.CursorMove(2, Simple::IO::TerminalCursorMovement::ScrollUp);
+    // console.SetXY(1,5);
+    console.Print(L"Input:");
+    for (int index = 0; index < 80; index++) {
+        console.Print((wchar_t)196);
+    }
+    console.SetTerminalAttribute(Simple::IO::TerminalAttributes::Cursor, false);
+    console.GetChar(10);
+    console.SetTerminalAttribute(Simple::IO::TerminalAttributes::Cursor, true);
+    console.CursorMove(8, Simple::IO::TerminalCursorMovement::Up);
+    console.Print(L"Input:");
+    wstring result = console.GetLine(10);
+    console.Print(result);
+    int colour = 6;
+    console.SetTerminalAttribute(Simple::IO::TerminalAttributes::Cursor, false);
+    for (int loops = 0; loops < 10000; loops++) {
+        console.SetXY(1,1);
+        console.SetForegroundColour(colour);
+        console.Print(L"Hello");
+        if (colour == 6) {
+            colour = 10;
+        } else {
+            colour = 6;
+        }
+        usleep(50);
+    }
+    console.SetTerminalAttribute(Simple::IO::TerminalAttributes::Cursor, true);
+   /*
+    for (unsigned char ch : content) {
+        console.Print((wchar_t)ch);
+        usleep(300);
+    }
+    */
 
 }

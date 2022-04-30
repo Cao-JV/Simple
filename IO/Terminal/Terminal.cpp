@@ -30,18 +30,24 @@
 #include <stdio.h>
 #include <iostream>
 #include <stdarg.h>
+#include <chrono>
 
 using std::wcout;
+using std::wcin;
 using std::cout;
 using std::endl;
+using std::chrono::steady_clock;
 
 namespace Simple {
     namespace IO {
         Terminal::Terminal(bool EchoOn, std::string SystemLocale) {
             std::setlocale(LC_ALL, SystemLocale.c_str());
             this->_initialize();
-            this->SetEcho(EchoOn);
             this->SetMaxXY(80, 25);
+            this->_sendCommand('m', L"0");
+            this->SetForegroundColour(this->m_ForegroundColour);
+            this->SetBackgroundColour(this->m_BackgroundColour);
+            this->SetTerminalAttribute(TerminalAttributes::Echo, EchoOn);
         }
         Terminal::~Terminal() {
             #ifdef __linux__
@@ -56,7 +62,6 @@ namespace Simple {
             this->_sendCommand('K', std::to_wstring(TerminalClear::ToEnd));
         }
         void Terminal::Print(const wchar_t Char) {
-            wcout << this->_translate(Char);
             // We're letting the internal handlers parse the codes, so check if screen pos changed
             this->GetXY(this->m_CurrentX, this->m_CurrentY);
         }
@@ -138,8 +143,40 @@ namespace Simple {
             
         }
          int Terminal::GetChar(const int TimeOutMS) {
-             return 0;
+             wchar_t result = {0};
+            std::chrono::milliseconds maxtime{TimeOutMS};
+            auto starttime = steady_clock::now();
+            auto currenttime = steady_clock::now();
+            while(result == 0 && 
+                  (TimeOutMS == 0 || std::chrono::duration_cast<std::chrono::milliseconds>(currenttime - starttime) < maxtime)) {
+                result = wcin.get();
+                currenttime = steady_clock::now();
+            }
+             return result;
          }
+         wstring Terminal::GetLine(const int MaxLength, const wchar_t Terminator, const int TimeOutMS) {
+            wstring result = wstring();
+            wchar_t keypress = { 0 };
+            std::chrono::milliseconds maxtime{TimeOutMS};
+            auto starttime = steady_clock::now();
+            auto currenttime = steady_clock::now();
+
+            while (keypress != Terminator && 
+                   (TimeOutMS == 0 || std::chrono::duration_cast<std::chrono::milliseconds>(currenttime - starttime) < maxtime)) {
+                       keypress = this->GetChar(TimeOutMS);
+                       if (keypress == 127
+                           && result.length() > 0) {
+                           this->CursorMove(1, TerminalCursorMovement::Left);
+                           result.pop_back();
+                       } else
+                       if (keypress != Terminator && 
+                            (MaxLength == 0 || result.length() < MaxLength)) {
+                           result.push_back(keypress);
+                       }
+                   }
+            return result;
+         }
+
          void Terminal::GetMaxXY(int &X, int &Y) {
              X = this->m_MaxX;
              Y = this->m_MaxY;
@@ -148,57 +185,88 @@ namespace Simple {
              X = 0;
              Y = 0;
          }
-         void Terminal::SetXY(const int X, const int Y) {
-             
-         }
          void Terminal::SetMaxXY(const int X, const int Y) {
              this->m_MaxX = X;
              this->m_MaxY = Y;
          }
+         void Terminal::CursorMove(const int Value, const TerminalCursorMovement Movement) {
+
+             this->_sendCommand((char)Movement, std::to_wstring(Value));
+         }
+         void Terminal::SetXY(const int X, const int Y, const bool AsEdit) {
+             this->_sendCommand((AsEdit ? 'H' : 'f'), std::to_wstring(Y) + L";" + std::to_wstring(X));
+         }
+
          void Terminal::SaveXY() {}
          void Terminal::RestoreXY() {}
          void Terminal::SetForegroundColour(const int ForegroundColour) {
-             switch (this->m_ColourMode) {
-                Modern: this->_sendCommand('m', L"38;5;" + std::to_wstring(ForegroundColour));
+            switch (this->m_ColourMode) {
+                case TerminalColourModes::Modern: {
+                                // Modern terminals can support 256 (8bit) colours. starting at 0 & counting up. Like a normal system.
+                                // However, the original spec had already broke the colours into 8-index pages (see below). So this choice of commands seems arbitrary &
+                                // unintuitive. I've written this in C++, let that sink in.
+                                this->_sendCommand('m', L"0;38;5;" + std::to_wstring(ForegroundColour));
+                            }
+                            break;
+                case TerminalColourModes::Legacy: {
+                                // Colours are described 0 to 7 & are either high or low. Giving a combination of 16 (4bit) colours. 
+                                // Derive those colours from a less confusing scale of 0 to 15. It's broken like this because we used to have 2bit colour capability*.
+                                int newColour = ((ForegroundColour < 8) ? ForegroundColour + 30 : ForegroundColour + 82);
+                                std::wstring colourData;
+                                colourData.append(L"0;").append(std::to_wstring(newColour));
+                                this->_sendCommand('m', colourData);
+                        }
                         break;
-                Legacy: static int newColour = ForegroundColour + 30;
-                        wchar_t *colourData;
-                        colourData = (ForegroundColour > 37 ? ForegroundColour - 8  : ForegroundColour);
-                        
-                        this->_sendCommand('m', colourData);
+                case TerminalColourModes::None:
+                default: // If there is no Colour mode, don't change colour.
                         break;
-                None:
+             } 
+             this->m_ForegroundColour = ForegroundColour;
+         }
+         void Terminal::SetBackgroundColour(const int BackgroundColour) {
+             // We could merge Fore & Back colours together for clever algorithmicness. I'd rather keep this readable & straight forward. So, I'm not clever.
+            switch (this->m_ColourMode) {
+                case TerminalColourModes::Modern: {
+                                // Modern terminals can support 256 (8bit) colours. starting at 0 & counting up. Like a normal system.
+                                // However, the original spec had already broke the colours into 8-index pages (see below). So this choice of commands seems arbitrary &
+                                // unintuitive. I've written this in C++, let that sink in.
+                                this->_sendCommand('m', L"0;48;5;" + std::to_wstring(BackgroundColour));
+                            }
+                            break;
+                case TerminalColourModes::Legacy: {
+                                // Colours are described 0 to 7 & are either high or low. Giving a combination of 16 (4bit) colours. 
+                                // Derive those colours from a less confusing scale of 0 to 15. It's broken like this because we used to have 2bit colour capability*.
+                                int newColour = ((BackgroundColour < 8) ? BackgroundColour + 40 : BackgroundColour + 72);
+                                std::wstring colourData = std::to_wstring(newColour);
+                                this->_sendCommand('m', colourData);
+                        }
+                        break;
+                case TerminalColourModes::None:
                 default: // If there is no Colour mode, don't change colour.
                         break;
              } 
          }
-         void Terminal::SetBackgroundColour(const int BackgroundColour) {
-             this->SetBackgroundColour(BackgroundColour);
-         }
-         void Terminal::SetBlink(const bool Blink) {
-             this->m_IsBlinkOn = Blink;
-         }
-         void Terminal::SetEcho(const bool Echo) {
-             this->m_IsEchoOn = Echo;
-         }
-         void Terminal::SetExtendedASCII(const bool ExtendedASCII) {
-             this->m_IsExtendedASCIIOn = ExtendedASCII;
-         }
-        void Terminal::SetConsoleColourMode(const TerminalColourMode Mode)  {
+        void Terminal::SetConsoleColourMode(const TerminalColourModes Mode)  {
             this->m_ColourMode = Mode;
         }
-        bool Terminal::IsBlinkOn() {
-             return false;
-         }
-        bool Terminal::IsEchoOn() {
-             return this->m_IsEchoOn;
+        void Terminal::SetTerminalAttribute(const TerminalAttributes Attribute, const bool State) {
+            if (this->IsTerminalAttributeOn(Attribute) != State) {
+                this->m_TerminalAttributes = ~Attribute;
+            }
+            if (Attribute == TerminalAttributes::Echo) {
+                this->_updateTerminalSettings();
+            }
+            if (Attribute == TerminalAttributes::Cursor) {
+                this->_sendCommand((State ? 'h' : 'l'), L"?25" );
+            }
         }
-        bool Terminal::IsExtendedASCIIOn() {
-            return this->m_IsExtendedASCIIOn;
-        }
-        TerminalColourMode Terminal::GetConsoleColourMode() {
+        TerminalColourModes Terminal::GetConsoleColourMode() {
             return this->m_ColourMode;
         }
+        bool Terminal::IsTerminalAttributeOn(const TerminalAttributes Attribute) {
+            return (this->m_TerminalAttributes & Attribute) == Attribute;
+        }
+
         void Terminal::_initialize() {
             #ifdef __linux__
             // Get Terminal I/O settings
@@ -207,12 +275,14 @@ namespace Simple {
             this->m_CurrentTerminal = this->m_OriginalTerminal;
             // Disable Line Buffering for Input
             this->m_CurrentTerminal.c_lflag &= ~ICANON;
+            // Update the settings to Terminal
+            tcsetattr(0, TCSANOW, &this->m_CurrentTerminal);
             #endif
         }
         #ifdef __linux__
         void Terminal::_updateTerminalSettings() {
             // If configured for Echo...
-            if (this->m_IsEchoOn) {
+            if (this->IsTerminalAttributeOn(TerminalAttributes::Echo)) {
                 // ...Turn it on in the Terminal
                 this->m_CurrentTerminal.c_cflag |= ECHO;
             } else {
@@ -220,11 +290,11 @@ namespace Simple {
                 this->m_CurrentTerminal.c_cflag &= ~ECHO;
             }
             // Update the settings to Terminal
-            tcsetattr(0, TCSANOW, &this->m_CurrentTerminal);
+            tcsetattr(fileno(stdin), TCSANOW, &this->m_CurrentTerminal);
         }
         #endif
         void Terminal::_sendCommand(const char code, const std::wstring data) {
-            this->Print(L"%s%s%c", EscapeSequenceBegin.c_str(), data.c_str(), code);
+             this->Print(L"%s%s%c", EscapeSequenceBegin.c_str(), data.c_str(), code);
         }
         std::wstring Terminal::_intToString(const unsigned int Value, const int NumberBase) 
         { 
@@ -239,11 +309,8 @@ namespace Simple {
 
             return buffer; 
         }
-        std::wstring Terminal::_convertColourCode(int Colour) {
-
-        }
         wchar_t Terminal::_translate(const wchar_t Char) {
-            return ((this->m_IsExtendedASCIIOn) ? 
+            return ((this->IsTerminalAttributeOn(TerminalAttributes::ExtendedAscii)) ? 
                     ((Char < 255 && Char > 127) ? ASCIIToUTF8Chars[Char] : Char)
                     : Char);
         }
@@ -254,11 +321,10 @@ namespace Simple {
             }
             return result;
         }
-
     } // NS:IO
 
 } // NS: Simple
-            
+
 
 
 

@@ -47,6 +47,7 @@
                     virtual void PrintLn(const wchar_t *Format, ...) =0;
                     virtual void PrintLn(const std::wstring Format, ...) = 0;
                     virtual int  GetChar(const int TimeOutMS = 0) = 0;
+                    virtual std::wstring GetLine(const int MaxLength = 0, const wchar_t Terminator = L'\n', const int TimeOutMS = 0) = 0;
                     virtual void GetMaxXY(int &X, int &Y) = 0;
                     virtual void SetMaxXY(const int X, const int Y) = 0;
                     virtual void CursorMove(const int Value, const TerminalCursorMovement Movement) = 0;

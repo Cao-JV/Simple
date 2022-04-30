@@ -31,6 +31,7 @@
 #ifdef __linux__
     #include <termios.h>
 #endif
+using std::wstring;
     namespace Simple {
         namespace IO {
             const std::wstring EscapeSequenceBegin = L"\u001b[";
@@ -43,28 +44,29 @@
                 public:
                     Terminal(bool EchoOn = true, std::string SystemLocale = "en_US.utf8");
                     ~Terminal();
-                    virtual void ClearScreen();
-                    virtual void ClearLine();
-                    virtual void Print(const wchar_t Char);
-                    virtual void Print(const std::wstring Format, ...);
-                    virtual void Print(const wchar_t *Format, ...);
-                    virtual void VPrint(const std::wstring Format, va_list Args);
-                    virtual void PrintLn(const wchar_t *Format, ...);
-                    virtual void PrintLn(const std::wstring Format, ...);
-                    virtual int  GetChar(const int TimeOutMS = 0);
-                    virtual void SetMaxXY(const int X, const int Y);
-                    virtual void GetMaxXY(int &X, int &Y);
-                    virtual void GetXY(int &X, int &Y);
-                    virtual void CursorMove(const int Value, const TerminalCursorMovement Movement);
-                    virtual void SetXY(const int X, const int Y, const bool AsEdit = true);
-                    virtual void SaveXY();
-                    virtual void RestoreXY();
-                    virtual void SetForegroundColour(const int ForegroundColour);
-                    virtual void SetBackgroundColour(const int BackgroundColour);
-                    virtual void SetConsoleColourMode(const TerminalColourModes Mode);
-                    virtual void SetTerminalAttribute(const TerminalAttributes Attribute, bool State);
+                    virtual void    ClearScreen();
+                    virtual void    ClearLine();
+                    virtual void    Print(const wchar_t Char);
+                    virtual void    Print(const wstring Format, ...);
+                    virtual void    Print(const wchar_t *Format, ...);
+                    virtual void    VPrint(const wstring Format, va_list Args);
+                    virtual void    PrintLn(const wchar_t *Format, ...);
+                    virtual void    PrintLn(const wstring Format, ...);
+                    virtual int     GetChar(const int TimeOutMS = 0);
+                    virtual wstring GetLine(const int MaxLength = 0, const wchar_t Terminator = L'\n', const int TimeOutMS = 0);
+                    virtual void    SetMaxXY(const int X, const int Y);
+                    virtual void    GetMaxXY(int &X, int &Y);
+                    virtual void    GetXY(int &X, int &Y);
+                    virtual void    CursorMove(const int Value, const TerminalCursorMovement Movement);
+                    virtual void    SetXY(const int X, const int Y, const bool AsEdit = true);
+                    virtual void    SaveXY();
+                    virtual void    RestoreXY();
+                    virtual void    SetForegroundColour(const int ForegroundColour);
+                    virtual void    SetBackgroundColour(const int BackgroundColour);
+                    virtual void    SetConsoleColourMode(const TerminalColourModes Mode);
+                    virtual void    SetTerminalAttribute(const TerminalAttributes Attribute, bool State);
                     virtual TerminalColourModes GetConsoleColourMode();
-                    virtual bool IsTerminalAttributeOn(const TerminalAttributes Attribute);
+                    virtual bool    IsTerminalAttributeOn(const TerminalAttributes Attribute);
 
                 protected:
                     #ifdef __linux__
