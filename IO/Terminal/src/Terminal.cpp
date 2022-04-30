@@ -67,8 +67,9 @@ namespace Simple {
             this->_sendCommand('K', std::to_wstring(TerminalClear::ToEnd));
         }
         void Terminal::Print(const wchar_t Char) {
+            wcout << this->_translate(Char);
             // We're letting the internal handlers parse the codes, so check if screen pos changed
-            this->GetXY(this->m_CurrentX, this->m_CurrentY);
+            //this->GetXY(this->m_CurrentX, this->m_CurrentY);
         }
         void Terminal::Print(const wchar_t *Format, ...) {
             va_list args;
@@ -192,22 +193,43 @@ namespace Simple {
              #endif
          }
          void Terminal::GetXY(int &X, int &Y) {
-             X = 0;
-             Y = 0;
+             #ifdef __linux__
+             // Soo... apparently Linux isn't advanced enough to just have a function... You need to talk to the terminal. If it supports being talked to.
+             wstring result;
+             int semiColonIndex = 0
+                ,startingIndex = 2
+                ,endingIndex = 1;
+
+             this->_sendCommand('n', L"6");
+             result = this->GetLine(0, L'R');
+
+             semiColonIndex = result.find_first_of(L';');
+             endingIndex = result.find_first_of(L'R') - 1;
+             X = std::stoi(result.substr(startingIndex, semiColonIndex - startingIndex));
+             Y = std::stoi(result.substr(semiColonIndex + 1, endingIndex - (semiColonIndex + 1)));
+             #endif
+         }
+         void Terminal::SetMaxXY(const int X, const int Y) {
+             wstring commandData = L"8;";
+             commandData.append(std::to_wstring(Y));
+             commandData.push_back(L';');
+             commandData.append(std::to_wstring(X));
+             this->_sendCommand('t', commandData);
+             // If we broke the upper physical boundaries, this could be different than specified
+             this->GetMaxXY(this->m_MaxX, this->m_MaxY);
+         }
+         void Terminal::SetXY(const int X, const int Y, const bool AsEdit) {
+             // Terminal may have been resized... Will add a signal handler, maybe.
+             this->GetMaxXY(this->m_MaxX, this->m_MaxY);
+             static int newX = (X > this->m_MaxX ? this->m_MaxX : 
+                               (X > 0 ? X : 1));
+             static int newY = (Y > this->m_MaxY ? this->m_MaxY : 
+                               (Y > 0 ? Y : 1));
+             this->_sendCommand((AsEdit ? 'H' : 'f'), std::to_wstring(Y) + L";" + std::to_wstring(X));
          }
          void Terminal::CursorMove(const int Value, const TerminalCursorMovement Movement) {
              this->_sendCommand((char)Movement, std::to_wstring(Value));
          }
-         void Terminal::SetXY(const int X, const int Y, const bool AsEdit) {
-             static int maxX, maxY;
-             this->GetMaxXY(maxX, maxY);
-             static int newX = (X > maxX ? maxX : 
-                               (X > 0 ? X : 1));
-             static int newY = (Y > maxY ? maxY : 
-                               (Y > 0 ? Y : 1));
-             this->_sendCommand((AsEdit ? 'H' : 'f'), std::to_wstring(Y) + L";" + std::to_wstring(X));
-         }
-
          void Terminal::SaveXY() {}
          void Terminal::RestoreXY() {}
          void Terminal::SetForegroundColour(const int ForegroundColour) {

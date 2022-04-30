@@ -60,7 +60,9 @@ int main(int argc, char** argv) {
     console.SetXY(1,1);
     console.SetForegroundColour(7);
     console.SetBackgroundColour(0);
-    console.Print(L"Welcome to SimpleConsole...\nExtended (8bit)ANSI/Extended (8bit)ASCII Test:\n");
+    console.SetMaxXY(200, 80);
+    console.Print(L"Welcome to SimpleConsole...\nTerminal set to 100 columns by 80 rows\n");
+    console.Print(L"Extended (8bit)ANSI/Extended (8bit)ASCII Test:\n");
     console.Print(L"Foreground:\n");
     for (int index = 0; index < 16; index++) {
         for (int offset = 0; offset < 16; offset++) {
@@ -133,8 +135,11 @@ int main(int argc, char** argv) {
         usleep(50);
     }
     console.SetTerminalAttribute(Simple::IO::TerminalAttributes::Cursor, true);
-    console.SetXY(1, 25);
-    console.Print(L"GoodBye!\n");
+    console.SetXY(1, 24);
+    console.Print(L"Setting Console to 80 columns by 25 rows");
+    console.SetMaxXY(80, 25);
+    console.GetXY(x, y);
+    console.Print(L"\n[%i, %i]GoodBye!\n", x, y);
    /*
     for (unsigned char ch : content) {
         console.Print((wchar_t)ch);

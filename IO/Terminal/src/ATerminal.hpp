@@ -49,9 +49,10 @@
                     virtual int  GetChar(const int TimeOutMS = 0) = 0;
                     virtual std::wstring GetLine(const int MaxLength = 0, const wchar_t Terminator = L'\n', const int TimeOutMS = 0) = 0;
                     virtual void GetMaxXY(int &X, int &Y) = 0;
-                    virtual void CursorMove(const int Value, const TerminalCursorMovement Movement) = 0;
                     virtual void GetXY(int &X, int &Y) = 0;
+                    virtual void SetMaxXY(const int X, const int Y) = 0;
                     virtual void SetXY(const int X, const int Y, const bool AsEdit = true) = 0;
+                    virtual void CursorMove(const int Value, const TerminalCursorMovement Movement) = 0;
                     virtual void SaveXY() = 0;
                     virtual void RestoreXY() = 0;
                     virtual void SetForegroundColour(const int ForegroundColour) = 0;
