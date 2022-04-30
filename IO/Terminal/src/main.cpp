@@ -122,7 +122,7 @@ int main(int argc, char** argv) {
     console.Print(L"Looping colour test...\n");
     console.SetTerminalAttribute(Simple::IO::TerminalAttributes::Cursor, false);
     for (int loops = 0; loops < 10000; loops++) {
-        console.SetXY(2,1);
+        console.SetXY(1,2);
         console.SetForegroundColour(colour);
         console.Print(L"Hello");
         if (colour == 6) {

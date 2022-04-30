@@ -48,8 +48,8 @@ namespace Simple {
         Terminal::Terminal(bool EchoOn, std::string SystemLocale) {
             std::setlocale(LC_ALL, SystemLocale.c_str());
             this->_initialize();
-            this->SetMaxXY(80, 25);
             this->_sendCommand('m', L"0");
+            this->GetMaxXY(this->m_CurrentX, this->m_CurrentY);
             this->SetForegroundColour(this->m_ForegroundColour);
             this->SetBackgroundColour(this->m_BackgroundColour);
             this->SetTerminalAttribute(TerminalAttributes::Echo, EchoOn);
@@ -181,28 +181,28 @@ namespace Simple {
                    }
             return result;
          }
-
          void Terminal::GetMaxXY(int &X, int &Y) {
             struct winsize result;
-            // Not standard POSIX - Use Linux, anyway.
+            // Not standard POSIX - Should use Linux, anyway.
             ioctl(STDOUT_FILENO, TIOCGWINSZ, &result);
-
-             X = this->m_MaxX = result.ws_col;
-             Y = this->m_MaxY = result.ws_row;
+            // This is a little strange, since to set the internal, you need to pass something.. Itself, the first time...
+             X = result.ws_col;
+             Y = result.ws_row;
          }
          void Terminal::GetXY(int &X, int &Y) {
              X = 0;
              Y = 0;
          }
-         void Terminal::SetMaxXY(const int X, const int Y) {
-             this->m_MaxX = X;
-             this->m_MaxY = Y;
-         }
          void Terminal::CursorMove(const int Value, const TerminalCursorMovement Movement) {
-
              this->_sendCommand((char)Movement, std::to_wstring(Value));
          }
          void Terminal::SetXY(const int X, const int Y, const bool AsEdit) {
+             static int maxX, maxY;
+             this->GetMaxXY(maxX, maxY);
+             static int newX = (X > maxX ? maxX : 
+                               (X > 0 ? X : 1));
+             static int newY = (Y > maxY ? maxY : 
+                               (Y > 0 ? Y : 1));
              this->_sendCommand((AsEdit ? 'H' : 'f'), std::to_wstring(Y) + L";" + std::to_wstring(X));
          }
 
