@@ -45,12 +45,12 @@ int main(int argc, char** argv) {
     // Need to set this so basic IO works!
     std::setlocale(LC_ALL, "en_US.utf8"); 
     // File to open   
-    string ansi_file = argv[1];
+    //string ansi_file = argv[1];
     // Open the filestream
-    std::ifstream ifs(ansi_file);
+    //std::ifstream ifs(ansi_file);
     // Write the string to stream
-    std::string content( (std::istreambuf_iterator<char>(ifs) ),
-                         (std::istreambuf_iterator<char>()    ) );
+    //std::string content( (std::istreambuf_iterator<char>(ifs) ),
+    //                     (std::istreambuf_iterator<char>()    ) );
     // Instantiate Terminal
     
     Terminal console(false,  "");
