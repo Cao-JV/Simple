@@ -182,12 +182,14 @@ namespace Simple {
             return result;
          }
          void Terminal::GetMaxXY(int &X, int &Y) {
+            #ifdef __linux__
             struct winsize result;
             // Not standard POSIX - Should use Linux, anyway.
             ioctl(STDOUT_FILENO, TIOCGWINSZ, &result);
             // This is a little strange, since to set the internal, you need to pass something.. Itself, the first time...
              X = result.ws_col;
              Y = result.ws_row;
+             #endif
          }
          void Terminal::GetXY(int &X, int &Y) {
              X = 0;
