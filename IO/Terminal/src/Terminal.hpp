@@ -78,7 +78,6 @@ using std::wstring;
                     virtual void _sendCommand(const char code, const std::wstring data);
                     virtual wchar_t _translate(const wchar_t Char);
                     virtual std::wstring _translate(const std::wstring);
-                    virtual std::wstring _intToString(const unsigned int Value, const int NumberBase);
 
                     const std::wstring   m_NumberFaces        = L"0123456789ABCDEF";
             };

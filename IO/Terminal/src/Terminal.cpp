@@ -82,7 +82,7 @@ namespace Simple {
             static unsigned int i; // This is going to parse our ints
             static std::wstring s;     // "     " "     "  "     "   strings
             static wchar_t formatOutput;
-
+            
             for(int formatIndex = 0; formatIndex < Format.length(); formatIndex++) 
             {   
                 if (formatIndex < Format.length()) {
@@ -104,14 +104,15 @@ namespace Simple {
                                     wcout << this->_translate(s);
                                     break;
                         case 'x': i = va_arg(Args,unsigned int);
-                                    wcout << this->_translate(_intToString(i,16));
+                                    wcout << std::hex << i; 
+
                                     break; 
                         case 'o': i = va_arg(Args,unsigned int);
-                                    wcout << this->_translate(_intToString(i,8));
+                                    wcout << std::oct << i;
                                     break; 
 
                         case 'i' : i = va_arg(Args,int);
-                                    wcout << i;// _intToString(i,10);
+                                    wcout << i;
                                     break; 
                         // ..it won't be left dangling if there were no more wchars
                         default:    wcout << this->_translate(formatOutput);
@@ -328,19 +329,6 @@ namespace Simple {
         #endif
         void Terminal::_sendCommand(const char code, const std::wstring data) {
              this->Print(L"%s%s%c", EscapeSequenceBegin.c_str(), data.c_str(), code);
-        }
-        std::wstring Terminal::_intToString(const unsigned int Value, const int NumberBase) 
-        { 
-            static wchar_t buffer[33] = { 0 }; 
-            static int maxIndex = 32;
-            static unsigned int quotient = Value;
-
-            while (quotient != 0) {
-                buffer[maxIndex] = this->m_NumberFaces[Value % NumberBase];
-                quotient /= NumberBase;
-            }
-
-            return buffer; 
         }
         wchar_t Terminal::_translate(const wchar_t Char) {
             return ((this->IsTerminalAttributeOn(TerminalAttributes::ExtendedAscii)) ? 

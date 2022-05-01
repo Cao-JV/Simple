@@ -137,7 +137,8 @@ int main(int argc, char** argv) {
     console.SetTerminalAttribute(Simple::IO::TerminalAttributes::Cursor, true);
     console.SetXY(1, 24);
     console.Print(L"Setting Console to 80 columns by 25 rows");
-    console.SetMaxXY(80, 25);
+    //  console.SetMaxXY(80, 25);
+    console.Print(L"Hex: %x", 28);
     console.GetXY(x, y);
     console.Print(L"\n[%i, %i]GoodBye!\n", x, y);
    /*
