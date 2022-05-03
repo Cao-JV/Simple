@@ -42,9 +42,8 @@ using Simple::IO::ASCIIToUTF8Chars;
  * 
  */
 int main(int argc, char** argv) {
-    // Need to set this so basic IO works!
-    std::setlocale(LC_ALL, "en_US.utf8"); 
-    int x = 0
+    std::locale::global(std::locale(""));// std::setlocale(LC_ALL, ""); 
+     int x = 0
        ,y = 0;
     // File to open   
     //string ansi_file = argv[1];
@@ -55,12 +54,16 @@ int main(int argc, char** argv) {
     //                     (std::istreambuf_iterator<char>()    ) );
     // Instantiate Terminal
     
+
     Terminal console(false,  "");
+
     console.ClearScreen();
     console.SetXY(1,1);
     console.SetForegroundColour(7);
     console.SetBackgroundColour(0);
-    console.Print(L"Welcome to SimpleConsole...\nExtended (8bit)ANSI/Extended (8bit)ASCII Test:\n");
+    console.SetMaxXY(200, 80);
+    console.Print(L"Welcome to SimpleConsole...\nTerminal set to 100 columns by 80 rows\n");
+    console.Print(L"Extended (8bit)ANSI/Extended (8bit)ASCII Test:\n");
     console.Print(L"Foreground:\n");
     for (int index = 0; index < 16; index++) {
         for (int offset = 0; offset < 16; offset++) {
@@ -119,10 +122,12 @@ int main(int argc, char** argv) {
     console.Print(L"\nYou said %s!", result.c_str());
     int colour = 6;
     console.SetXY(1,1);
+    console.SaveXY();
+
     console.Print(L"Looping colour test...\n");
     console.SetTerminalAttribute(Simple::IO::TerminalAttributes::Cursor, false);
     for (int loops = 0; loops < 10000; loops++) {
-        console.SetXY(2,1);
+        console.SetXY(1,2);
         console.SetForegroundColour(colour);
         console.Print(L"Hello");
         if (colour == 6) {
@@ -133,8 +138,16 @@ int main(int argc, char** argv) {
         usleep(50);
     }
     console.SetTerminalAttribute(Simple::IO::TerminalAttributes::Cursor, true);
-    console.SetXY(1, 25);
-    console.Print(L"GoodBye!\n");
+    console.SetXY(1, 24);
+    console.Print(L"Setting Console to 80 columns by 25 rows");
+    console.SetMaxXY(80, 25);
+    console.Print(L"Hex: %x", 28);
+    console.GetXY(x, y);
+    console.Print(L"\n[%i, %i]GoodBye!\n", x, y);
+    console.RestoreXY();
+    console.Print(L"Returning...");
+ 
+  return 0;
    /*
     for (unsigned char ch : content) {
         console.Print((wchar_t)ch);

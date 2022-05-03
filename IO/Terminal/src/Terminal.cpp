@@ -32,6 +32,7 @@
 #include <stdarg.h>
 #include <chrono>
 
+
 #ifdef __linux__
     #include <sys/ioctl.h> 
     #include <unistd.h> 
@@ -46,10 +47,10 @@ using std::wstring;
 namespace Simple {
     namespace IO {
         Terminal::Terminal(bool EchoOn, std::string SystemLocale) {
-            std::setlocale(LC_ALL, SystemLocale.c_str());
+            //std::setlocale(LC_ALL, SystemLocale.c_str());
             this->_initialize();
-            this->SetMaxXY(80, 25);
             this->_sendCommand('m', L"0");
+            this->GetMaxXY(this->m_CurrentX, this->m_CurrentY);
             this->SetForegroundColour(this->m_ForegroundColour);
             this->SetBackgroundColour(this->m_BackgroundColour);
             this->SetTerminalAttribute(TerminalAttributes::Echo, EchoOn);
@@ -67,8 +68,9 @@ namespace Simple {
             this->_sendCommand('K', std::to_wstring(TerminalClear::ToEnd));
         }
         void Terminal::Print(const wchar_t Char) {
+            wcout << this->_translate(Char);
             // We're letting the internal handlers parse the codes, so check if screen pos changed
-            this->GetXY(this->m_CurrentX, this->m_CurrentY);
+            //this->GetXY(this->m_CurrentX, this->m_CurrentY);
         }
         void Terminal::Print(const wchar_t *Format, ...) {
             va_list args;
@@ -81,7 +83,7 @@ namespace Simple {
             static unsigned int i; // This is going to parse our ints
             static std::wstring s;     // "     " "     "  "     "   strings
             static wchar_t formatOutput;
-
+            
             for(int formatIndex = 0; formatIndex < Format.length(); formatIndex++) 
             {   
                 if (formatIndex < Format.length()) {
@@ -103,14 +105,15 @@ namespace Simple {
                                     wcout << this->_translate(s);
                                     break;
                         case 'x': i = va_arg(Args,unsigned int);
-                                    wcout << this->_translate(_intToString(i,16));
+                                    wcout << std::hex << i << std::dec; 
+
                                     break; 
                         case 'o': i = va_arg(Args,unsigned int);
-                                    wcout << this->_translate(_intToString(i,8));
+                                    wcout << std::oct << i << std::dec;
                                     break; 
 
                         case 'i' : i = va_arg(Args,int);
-                                    wcout << i;// _intToString(i,10);
+                                    wcout << i;
                                     break; 
                         // ..it won't be left dangling if there were no more wchars
                         default:    wcout << this->_translate(formatOutput);
@@ -178,36 +181,70 @@ namespace Simple {
                             (MaxLength == 0 || result.length() < MaxLength)) {
                            result.push_back(keypress);
                        }
-                   }
+                   } 
             return result;
          }
-
          void Terminal::GetMaxXY(int &X, int &Y) {
+            #ifdef __linux__
             struct winsize result;
-            // Not standard POSIX - Use Linux, anyway.
+            // Not standard POSIX - Should use Linux, anyway.
             ioctl(STDOUT_FILENO, TIOCGWINSZ, &result);
-
-             X = this->m_MaxX = result.ws_col;
-             Y = this->m_MaxY = result.ws_row;
+            // This is a little strange, since to set the internal, you need to pass something.. Itself, the first time...
+             X = result.ws_col;
+             Y = result.ws_row;
+             #endif
          }
          void Terminal::GetXY(int &X, int &Y) {
-             X = 0;
-             Y = 0;
+             #ifdef __linux__
+             // Soo... apparently Linux isn't advanced enough to just have a function... You need to talk to the terminal. If it supports being talked to.
+             wstring result;
+             int semiColonIndex = 0
+                ,startingIndex = 2
+                ,endingIndex = 1;
+
+             this->_sendCommand('n', L"6");
+             result = this->GetLine(0, L'R');
+
+             semiColonIndex = result.find_first_of(L';');
+             endingIndex = result.find_first_of(L'R') - 1;
+             X = std::stoi(result.substr(startingIndex, semiColonIndex - startingIndex));
+             Y = std::stoi(result.substr(semiColonIndex + 1, endingIndex - (semiColonIndex + 1)));
+             #endif
          }
          void Terminal::SetMaxXY(const int X, const int Y) {
-             this->m_MaxX = X;
-             this->m_MaxY = Y;
-         }
-         void Terminal::CursorMove(const int Value, const TerminalCursorMovement Movement) {
-
-             this->_sendCommand((char)Movement, std::to_wstring(Value));
+             wstring commandData = L"8;";
+             commandData.append(std::to_wstring(Y));
+             commandData.push_back(L';');
+             commandData.append(std::to_wstring(X));
+             this->_sendCommand('t', commandData);
+             // If we broke the upper physical boundaries, this could be different than specified
+             this->GetMaxXY(this->m_MaxX, this->m_MaxY);
          }
          void Terminal::SetXY(const int X, const int Y, const bool AsEdit) {
+             // Terminal may have been resized... Will add a signal handler, maybe.
+             this->GetMaxXY(this->m_MaxX, this->m_MaxY);
+             static int newX = (X > this->m_MaxX ? this->m_MaxX : 
+                               (X > 0 ? X : 1));
+             static int newY = (Y > this->m_MaxY ? this->m_MaxY : 
+                               (Y > 0 ? Y : 1));
              this->_sendCommand((AsEdit ? 'H' : 'f'), std::to_wstring(Y) + L";" + std::to_wstring(X));
          }
-
-         void Terminal::SaveXY() {}
-         void Terminal::RestoreXY() {}
+         void Terminal::CursorMove(const int Value, const TerminalCursorMovement Movement) {
+             this->_sendCommand((char)Movement, std::to_wstring(Value));
+         }
+         void Terminal::SaveXY() {
+             // keeping track manually - will come in handy
+             this->GetXY(this->m_SavedX, this->m_SavedY);
+             // ANSI command to save current position
+             this->_sendCommand('s', L"");
+         }
+         void Terminal::RestoreXY() {
+             // Keeping track manually - will come in handy
+             this->m_CurrentX = this->m_SavedX;
+             this->m_CurrentY = this->m_SavedY;
+             // ANSI command to return to saved position
+             this->_sendCommand('u', L"");
+         }
          void Terminal::SetForegroundColour(const int ForegroundColour) {
             switch (this->m_ColourMode) {
                 case TerminalColourModes::Modern: {
@@ -304,19 +341,6 @@ namespace Simple {
         #endif
         void Terminal::_sendCommand(const char code, const std::wstring data) {
              this->Print(L"%s%s%c", EscapeSequenceBegin.c_str(), data.c_str(), code);
-        }
-        std::wstring Terminal::_intToString(const unsigned int Value, const int NumberBase) 
-        { 
-            static wchar_t buffer[33] = { 0 }; 
-            static int maxIndex = 32;
-            static unsigned int quotient = Value;
-
-            while (quotient != 0) {
-                buffer[maxIndex] = this->m_NumberFaces[Value % NumberBase];
-                quotient /= NumberBase;
-            }
-
-            return buffer; 
         }
         wchar_t Terminal::_translate(const wchar_t Char) {
             return ((this->IsTerminalAttributeOn(TerminalAttributes::ExtendedAscii)) ? 
