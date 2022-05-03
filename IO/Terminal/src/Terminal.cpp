@@ -32,6 +32,7 @@
 #include <stdarg.h>
 #include <chrono>
 
+
 #ifdef __linux__
     #include <sys/ioctl.h> 
     #include <unistd.h> 
@@ -180,7 +181,7 @@ namespace Simple {
                             (MaxLength == 0 || result.length() < MaxLength)) {
                            result.push_back(keypress);
                        }
-                   }
+                   } 
             return result;
          }
          void Terminal::GetMaxXY(int &X, int &Y) {
@@ -231,8 +232,19 @@ namespace Simple {
          void Terminal::CursorMove(const int Value, const TerminalCursorMovement Movement) {
              this->_sendCommand((char)Movement, std::to_wstring(Value));
          }
-         void Terminal::SaveXY() {}
-         void Terminal::RestoreXY() {}
+         void Terminal::SaveXY() {
+             // keeping track manually - will come in handy
+             this->GetXY(this->m_SavedX, this->m_SavedY);
+             // ANSI command to save current position
+             this->_sendCommand('s', L"");
+         }
+         void Terminal::RestoreXY() {
+             // Keeping track manually - will come in handy
+             this->m_CurrentX = this->m_SavedX;
+             this->m_CurrentY = this->m_SavedY;
+             // ANSI command to return to saved position
+             this->_sendCommand('u', L"");
+         }
          void Terminal::SetForegroundColour(const int ForegroundColour) {
             switch (this->m_ColourMode) {
                 case TerminalColourModes::Modern: {
