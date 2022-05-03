@@ -6,3 +6,5 @@ IO/Terminal/main
 IO/Terminal/Terminal
 IO/Terminal/TerminalInfo.hpp
 .vscode/settings.json
+IO/Terminal/src/TerminalInfo copy.hpp
+IO/Terminal/comments.txt
