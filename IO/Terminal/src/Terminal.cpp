@@ -46,7 +46,7 @@ using std::wstring;
 namespace Simple {
     namespace IO {
         Terminal::Terminal(bool EchoOn, std::string SystemLocale) {
-            std::setlocale(LC_ALL, SystemLocale.c_str());
+            //std::setlocale(LC_ALL, SystemLocale.c_str());
             this->_initialize();
             this->_sendCommand('m', L"0");
             this->GetMaxXY(this->m_CurrentX, this->m_CurrentY);
