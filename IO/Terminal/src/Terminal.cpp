@@ -104,11 +104,11 @@ namespace Simple {
                                     wcout << this->_translate(s);
                                     break;
                         case 'x': i = va_arg(Args,unsigned int);
-                                    wcout << std::hex << i; 
+                                    wcout << std::hex << i << std::dec; 
 
                                     break; 
                         case 'o': i = va_arg(Args,unsigned int);
-                                    wcout << std::oct << i;
+                                    wcout << std::oct << i << std::dec;
                                     break; 
 
                         case 'i' : i = va_arg(Args,int);

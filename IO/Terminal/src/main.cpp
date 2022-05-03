@@ -42,9 +42,8 @@ using Simple::IO::ASCIIToUTF8Chars;
  * 
  */
 int main(int argc, char** argv) {
-    // Need to set this so basic IO works!
-    std::setlocale(LC_ALL, "en_US.utf8"); 
-    int x = 0
+    std::locale::global(std::locale(""));// std::setlocale(LC_ALL, ""); 
+     int x = 0
        ,y = 0;
     // File to open   
     //string ansi_file = argv[1];
@@ -55,7 +54,9 @@ int main(int argc, char** argv) {
     //                     (std::istreambuf_iterator<char>()    ) );
     // Instantiate Terminal
     
+
     Terminal console(false,  "");
+
     console.ClearScreen();
     console.SetXY(1,1);
     console.SetForegroundColour(7);
@@ -141,6 +142,9 @@ int main(int argc, char** argv) {
     console.Print(L"Hex: %x", 28);
     console.GetXY(x, y);
     console.Print(L"\n[%i, %i]GoodBye!\n", x, y);
+
+ 
+  return 0;
    /*
     for (unsigned char ch : content) {
         console.Print((wchar_t)ch);
