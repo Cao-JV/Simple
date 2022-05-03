@@ -330,10 +330,10 @@ namespace Simple {
             // If configured for Echo...
             if (this->IsTerminalAttributeOn(TerminalAttributes::Echo)) {
                 // ...Turn it on in the Terminal
-                this->m_CurrentTerminal.c_cflag |= ECHO;
+                this->m_CurrentTerminal.c_lflag |= ECHO;
             } else {
                 // ...Or, turn it off in Terminal
-                this->m_CurrentTerminal.c_cflag &= ~ECHO;
+                this->m_CurrentTerminal.c_lflag &= ~ECHO;
             }
             // Update the settings to Terminal
             tcsetattr(fileno(stdin), TCSANOW, &this->m_CurrentTerminal);
