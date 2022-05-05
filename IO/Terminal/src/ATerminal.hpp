@@ -70,10 +70,12 @@
                                         ,m_MaxY
                                         ,m_ForegroundColour   = 7
                                         ,m_BackgroundColour   = 0;
-                    TerminalColourModes   m_ColourMode        = TerminalColourModes::Modern;
+                    TerminalColourModes  m_ColourMode        = TerminalColourModes::Modern;
                     TerminalAttributes   m_TerminalAttributes = TerminalAttributes::Echo | TerminalAttributes::ExtendedAscii;
-                    virtual void _initialize() = 0;
-                    virtual wchar_t _translate(const wchar_t Char) = 0;
+                    virtual void         _initialize(bool EchoOn) = 0;
+                    virtual void         _updateTerminalSettings(TerminalAttributes Attribute, bool State, bool WriteSettingsNow = true) = 0;
+                    virtual void         _loadTerminalSettings() = 0;
+                    virtual wchar_t      _translate(const wchar_t Char) = 0;
                     virtual std::wstring _translate(const std::wstring) = 0;
             };
         }

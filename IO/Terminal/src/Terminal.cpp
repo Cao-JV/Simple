@@ -48,12 +48,7 @@ namespace Simple {
     namespace IO {
         Terminal::Terminal(bool EchoOn, std::string SystemLocale) {
             //std::setlocale(LC_ALL, SystemLocale.c_str());
-            this->_initialize();
-            this->_sendCommand('m', L"0");
-            this->GetMaxXY(this->m_CurrentX, this->m_CurrentY);
-            this->SetForegroundColour(this->m_ForegroundColour);
-            this->SetBackgroundColour(this->m_BackgroundColour);
-            this->SetTerminalAttribute(TerminalAttributes::Echo, EchoOn);
+            this->_initialize(EchoOn);
         }
         Terminal::~Terminal() {
             #ifdef __linux__
@@ -223,11 +218,11 @@ namespace Simple {
          void Terminal::SetXY(const int X, const int Y, const bool AsEdit) {
              // Terminal may have been resized... Will add a signal handler, maybe.
              this->GetMaxXY(this->m_MaxX, this->m_MaxY);
-             static int newX = (X > this->m_MaxX ? this->m_MaxX : 
+             this->m_CurrentX = (X > this->m_MaxX ? this->m_MaxX : 
                                (X > 0 ? X : 1));
-             static int newY = (Y > this->m_MaxY ? this->m_MaxY : 
+             this->m_CurrentY = (Y > this->m_MaxY ? this->m_MaxY : 
                                (Y > 0 ? Y : 1));
-             this->_sendCommand((AsEdit ? 'H' : 'f'), std::to_wstring(Y) + L";" + std::to_wstring(X));
+             this->_sendCommand((AsEdit ? 'H' : 'f'), std::to_wstring(this->m_CurrentY) + L";" + std::to_wstring(this->m_CurrentX));
          }
          void Terminal::CursorMove(const int Value, const TerminalCursorMovement Movement) {
              this->_sendCommand((char)Movement, std::to_wstring(Value));
@@ -296,14 +291,25 @@ namespace Simple {
             this->m_ColourMode = Mode;
         }
         void Terminal::SetTerminalAttribute(const TerminalAttributes Attribute, const bool State) {
-            if (this->IsTerminalAttributeOn(Attribute) != State) {
-                this->m_TerminalAttributes = ~Attribute;
+            // If the setting is in the same state, let's just not bother doing it again
+            if (this->IsTerminalAttributeOn(Attribute) == State) {
+                return;
             }
-            if (Attribute == TerminalAttributes::Echo) {
-                this->_updateTerminalSettings();
+            // Change the attribute to it's opposite value
+            this->m_TerminalAttributes = ~Attribute;
+            switch (Attribute) {
+                case TerminalAttributes::Echo: {
+                    this->_updateTerminalSettings(TerminalAttributes::Echo, State);
+                    }
+                break;
+                case TerminalAttributes::Cursor: {
+                    this->_sendCommand((State ? 'h' : 'l'), L"?25" );
+                    }
+                break;
+                default:break;
             }
             if (Attribute == TerminalAttributes::Cursor) {
-                this->_sendCommand((State ? 'h' : 'l'), L"?25" );
+                
             }
         }
         TerminalColourModes Terminal::GetConsoleColourMode() {
@@ -312,33 +318,51 @@ namespace Simple {
         bool Terminal::IsTerminalAttributeOn(const TerminalAttributes Attribute) {
             return (this->m_TerminalAttributes & Attribute) == Attribute;
         }
+        void Terminal::_initialize(bool EchoOn) {
+            this->_loadTerminalSettings();
+            this->_updateTerminalSettings(TerminalAttributes::Echo, EchoOn, false);
+            this->_updateTerminalSettings(TerminalAttributes::LineBuffer, false);
+            this->_sendCommand('m', L"0");
+            this->SetXY(1,1);
+            this->SetForegroundColour(this->m_ForegroundColour);
+            this->SetBackgroundColour(this->m_BackgroundColour);
 
-        void Terminal::_initialize() {
+        }
+        void Terminal::_updateTerminalSettings(TerminalAttributes Attribute, bool State, bool WriteSettingsNow) {
             #ifdef __linux__
-            // Get Terminal I/O settings
-            tcgetattr(0, &this->m_OriginalTerminal);
-            // Copy them
-            this->m_CurrentTerminal = this->m_OriginalTerminal;
-            // Disable Line Buffering for Input
-            this->m_CurrentTerminal.c_lflag &= ~ICANON;
-            // Update the settings to Terminal
-            tcsetattr(0, TCSANOW, &this->m_CurrentTerminal);
+                switch (Attribute) {
+                    // If configured for Echo...
+                    case TerminalAttributes::Echo: if (State) {
+                                                        // ...Turn it on in the Terminal
+                                                        this->m_CurrentTerminal.c_lflag |= ECHO;
+                                                    } else {
+                                                        // ...Or, turn it off in Terminal
+                                                        this->m_CurrentTerminal.c_lflag &= ~ECHO;
+                                                    }
+                                                    break;
+                    case TerminalAttributes::LineBuffer: if (State) {
+                                                            // Disable Line Buffering for Input
+                                                            this->m_CurrentTerminal.c_lflag |= ICANON;
+                                                        } else {
+                                                            // Disable Line Buffering for Input
+                                                            this->m_CurrentTerminal.c_lflag &= ~ICANON;
+                                                        }
+                                                        break;
+                }
+                if (WriteSettingsNow) {
+                    // Update the settings to Terminal
+                    tcsetattr(fileno(stdin), TCSANOW, &this->m_CurrentTerminal);
+                }
             #endif
         }
-        #ifdef __linux__
-        void Terminal::_updateTerminalSettings() {
-            // If configured for Echo...
-            if (this->IsTerminalAttributeOn(TerminalAttributes::Echo)) {
-                // ...Turn it on in the Terminal
-                this->m_CurrentTerminal.c_lflag |= ECHO;
-            } else {
-                // ...Or, turn it off in Terminal
-                this->m_CurrentTerminal.c_lflag &= ~ECHO;
-            }
-            // Update the settings to Terminal
-            tcsetattr(fileno(stdin), TCSANOW, &this->m_CurrentTerminal);
+        void Terminal::_loadTerminalSettings() {
+            #ifdef __linux__
+            // Get Terminal I/O settings
+            tcgetattr(fileno(stdin), &this->m_OriginalTerminal);
+            // Copy them
+            this->m_CurrentTerminal = this->m_OriginalTerminal;
+            #endif
         }
-        #endif
         void Terminal::_sendCommand(const char code, const std::wstring data) {
              this->Print(L"%s%s%c", EscapeSequenceBegin.c_str(), data.c_str(), code);
         }

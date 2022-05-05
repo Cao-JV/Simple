@@ -58,10 +58,10 @@ int main(int argc, char** argv) {
     Terminal console(false,  "");
 
     console.ClearScreen();
-    console.SetXY(1,1);
     console.SetForegroundColour(7);
     console.SetBackgroundColour(0);
     console.SetMaxXY(200, 80);
+    console.SetXY(1,1);
     console.Print(L"Welcome to SimpleConsole...\nTerminal set to 100 columns by 80 rows\n");
     console.Print(L"Extended (8bit)ANSI/Extended (8bit)ASCII Test:\n");
     console.Print(L"Foreground:\n");

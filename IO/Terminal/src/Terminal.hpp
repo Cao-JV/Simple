@@ -2,7 +2,7 @@
  * Simple Terminal v0.1αß
  *
  * An unsophisticated Terminal class for quick commandline development.
- * 
+ *
  *  The MIT License
  *
  * Copyright 2022, CaoS.
@@ -37,8 +37,8 @@ using std::wstring;
             const std::wstring EscapeSequenceBegin = L"\u001b[";
 
             /**
-             * @brief 
-             * 
+             * @brief
+             *
              */
             class Terminal : ATerminal  {
                 public:
@@ -69,12 +69,13 @@ using std::wstring;
                     virtual bool    IsTerminalAttributeOn(const TerminalAttributes Attribute);
 
                 protected:
+                    virtual void _initialize(bool EchoOn);
                     #ifdef __linux__
                         struct termios  m_OriginalTerminal
                                        ,m_CurrentTerminal;
-                        void _updateTerminalSettings();
                     #endif
-                    virtual void _initialize();
+                    virtual void _updateTerminalSettings(TerminalAttributes Attribute, bool State, bool WriteSettingsNow = true);
+                    virtual void _loadTerminalSettings();
                     virtual void _sendCommand(const char code, const std::wstring data);
                     virtual wchar_t _translate(const wchar_t Char);
                     virtual std::wstring _translate(const std::wstring);
