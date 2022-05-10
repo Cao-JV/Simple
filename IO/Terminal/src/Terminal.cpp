@@ -62,6 +62,9 @@ namespace Simple {
         void Terminal::ClearLine() {
             this->_sendCommand('K', std::to_wstring(TerminalClear::ToEnd));
         }
+        void Flush() {
+            wcout << endl;
+        }
         void Terminal::Print(const wchar_t Char) {
             wcout << this->_translate(Char);
             // We're letting the internal handlers parse the codes, so check if screen pos changed
@@ -184,7 +187,7 @@ namespace Simple {
             struct winsize result;
             // Not standard POSIX - Should use Linux, anyway.
             ioctl(STDOUT_FILENO, TIOCGWINSZ, &result);
-            // This is a little strange, since to set the internal, you need to pass something.. Itself, the first time...
+            
              X = result.ws_col;
              Y = result.ws_row;
              #endif
@@ -300,11 +303,11 @@ namespace Simple {
             switch (Attribute) {
                 case TerminalAttributes::Echo: {
                     this->_updateTerminalSettings(TerminalAttributes::Echo, State);
-                    }
+                }
                 break;
                 case TerminalAttributes::Cursor: {
                     this->_sendCommand((State ? 'h' : 'l'), L"?25" );
-                    }
+                }
                 break;
                 default:break;
             }

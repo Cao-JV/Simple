@@ -46,6 +46,7 @@ using std::wstring;
                     ~Terminal();
                     virtual void    ClearScreen();
                     virtual void    ClearLine();
+                    virtual void    Flush();
                     virtual void    Print(const wchar_t Char);
                     virtual void    Print(const wstring Format, ...);
                     virtual void    Print(const wchar_t *Format, ...);
