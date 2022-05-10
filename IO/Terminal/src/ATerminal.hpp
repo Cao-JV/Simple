@@ -49,8 +49,8 @@
                     virtual void VPrint(const StringType Format, va_list Args) = 0;
                     virtual void PrintLn(const CharType *Format, ...) = 0;
                     virtual void PrintLn(const StringType Format, ...) = 0;
-                    virtual int  GetChar(const int TimeOutMS = 0) = 0;
-                    virtual std::wstring GetLine(const int MaxLength = 0, const CharType Terminator = L'\n', const int TimeOutMS = 0) = 0;
+                    virtual CharType  GetChar(const int TimeOutMS = 0) = 0;
+                    virtual StringType GetLine(const int MaxLength = 0, const CharType Terminator = L'\n', const int TimeOutMS = 0) = 0;
                     virtual void GetMaxXY(int &X, int &Y) = 0;
                     virtual void GetXY(int &X, int &Y) = 0;
                     virtual void SetMaxXY(const int X, const int Y) = 0;
