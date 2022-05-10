@@ -31,12 +31,12 @@
 #include<iostream>
 #include <string>
 
-#include "Terminal.hpp"
+#include "WANSITerminal.hpp"
 
 using std::wcout;
 using std::endl;
 using std::string;
-using Simple::IO::Terminal;
+using Simple::IO::WANSITerminal;
 using Simple::IO::ASCIIToUTF8Chars;
 /*
  * 
@@ -52,10 +52,10 @@ int main(int argc, char** argv) {
     // Write the string to stream
     //std::string content( (std::istreambuf_iterator<char>(ifs) ),
     //                     (std::istreambuf_iterator<char>()    ) );
-    // Instantiate Terminal
+    // Instantiate WANSITerminal
     
 
-    Terminal console(false,  "");
+    WANSITerminal console(false,  "");
 
     console.ClearScreen();
     console.SetForegroundColour(7);

@@ -1,7 +1,7 @@
 /*
- * Simple Terminal v0.1αß
+ * Simple WANSITerminal v0.1αß
  *
- * An unsophisticated Terminal class for quick commandline development.
+ * An unsophisticated WANSITerminal class for quick commandline development.
  * 
  *  The MIT License
  *
@@ -25,7 +25,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "Terminal.hpp"
+#include "WANSITerminal.hpp"
 #include <string.h>
 #include <stdio.h>
 #include <iostream>
@@ -46,37 +46,37 @@ using std::wstring;
 
 namespace Simple {
     namespace IO {
-        Terminal::Terminal(bool EchoOn, std::string SystemLocale) {
+        WANSITerminal::WANSITerminal(bool EchoOn, std::string SystemLocale) {
             //std::setlocale(LC_ALL, SystemLocale.c_str());
             this->_initialize(EchoOn);
         }
-        Terminal::~Terminal() {
+        WANSITerminal::~WANSITerminal() {
             #ifdef __linux__
-            // Reset Terminal I/O settings to original state before intercept
+            // Reset WANSITerminal I/O settings to original state before intercept
             tcsetattr(0, TCSANOW, &this->m_OriginalTerminal);            
             #endif
         }
-        void Terminal::ClearScreen() {
+        void WANSITerminal::ClearScreen() {
             this->_sendCommand('J', std::to_wstring(TerminalClear::Entire));
         }
-        void Terminal::ClearLine() {
+        void WANSITerminal::ClearLine() {
             this->_sendCommand('K', std::to_wstring(TerminalClear::ToEnd));
         }
-        void Flush() {
+        void WANSITerminal::FlushOut() {
             wcout << endl;
         }
-        void Terminal::Print(const wchar_t Char) {
+        void WANSITerminal::Print(const wchar_t Char) {
             wcout << this->_translate(Char);
             // We're letting the internal handlers parse the codes, so check if screen pos changed
             //this->GetXY(this->m_CurrentX, this->m_CurrentY);
         }
-        void Terminal::Print(const wchar_t *Format, ...) {
+        void WANSITerminal::Print(const wchar_t *Format, ...) {
             va_list args;
             va_start(args, Format);
             this->VPrint(Format, args);
             va_end(args);
         }
-        void Terminal::VPrint(const std::wstring Format, va_list Args) {
+        void WANSITerminal::VPrint(const std::wstring Format, va_list Args) {
             // We're going to call this over & over (& over) again in our app. Let's just hold on to the memory.
             static unsigned int i; // This is going to parse our ints
             static std::wstring s;     // "     " "     "  "     "   strings
@@ -126,14 +126,14 @@ namespace Simple {
             }
             va_end(Args); 
         }
-        void Terminal::Print(const std::wstring Format, ...) {
+        void WANSITerminal::Print(const std::wstring Format, ...) {
             va_list args; 
 
             va_start(args, Format);
             this->Print(Format.c_str(), args);
             va_end(args);
         }
-        void Terminal::PrintLn(const wchar_t *Format, ...) {
+        void WANSITerminal::PrintLn(const wchar_t *Format, ...) {
             va_list args; 
 
             va_start(args, Format);
@@ -141,14 +141,14 @@ namespace Simple {
             va_end(args);
             wcout << '\n';
         }
-        void Terminal::PrintLn(const std::wstring Format, ...) {
+        void WANSITerminal::PrintLn(const std::wstring Format, ...) {
             va_list args; 
             va_start(args, Format);
             this->PrintLn(Format.c_str(), args);
             va_end(args);
             
         }
-         int Terminal::GetChar(const int TimeOutMS) {
+         int WANSITerminal::GetChar(const int TimeOutMS) {
              wchar_t result = {0};
             std::chrono::milliseconds maxtime{TimeOutMS};
             auto starttime = steady_clock::now();
@@ -160,7 +160,7 @@ namespace Simple {
             }
              return result;
          }
-         wstring Terminal::GetLine(const int MaxLength, const wchar_t Terminator, const int TimeOutMS) {
+         wstring WANSITerminal::GetLine(const int MaxLength, const wchar_t Terminator, const int TimeOutMS) {
             wstring result = wstring();
             wchar_t keypress = { 0 };
             std::chrono::milliseconds maxtime{TimeOutMS};
@@ -182,7 +182,7 @@ namespace Simple {
                    } 
             return result;
          }
-         void Terminal::GetMaxXY(int &X, int &Y) {
+         void WANSITerminal::GetMaxXY(int &X, int &Y) {
             #ifdef __linux__
             struct winsize result;
             // Not standard POSIX - Should use Linux, anyway.
@@ -192,7 +192,7 @@ namespace Simple {
              Y = result.ws_row;
              #endif
          }
-         void Terminal::GetXY(int &X, int &Y) {
+         void WANSITerminal::GetXY(int &X, int &Y) {
              #ifdef __linux__
              // Soo... apparently Linux isn't advanced enough to just have a function... You need to talk to the terminal. If it supports being talked to.
              wstring result;
@@ -209,7 +209,7 @@ namespace Simple {
              Y = std::stoi(result.substr(semiColonIndex + 1, endingIndex - (semiColonIndex + 1)));
              #endif
          }
-         void Terminal::SetMaxXY(const int X, const int Y) {
+         void WANSITerminal::SetMaxXY(const int X, const int Y) {
              wstring commandData = L"8;";
              commandData.append(std::to_wstring(Y));
              commandData.push_back(L';');
@@ -218,8 +218,8 @@ namespace Simple {
              // If we broke the upper physical boundaries, this could be different than specified
              this->GetMaxXY(this->m_MaxX, this->m_MaxY);
          }
-         void Terminal::SetXY(const int X, const int Y, const bool AsEdit) {
-             // Terminal may have been resized... Will add a signal handler, maybe.
+         void WANSITerminal::SetXY(const int X, const int Y, const bool AsEdit) {
+             // WANSITerminal may have been resized... Will add a signal handler, maybe.
              this->GetMaxXY(this->m_MaxX, this->m_MaxY);
              this->m_CurrentX = (X > this->m_MaxX ? this->m_MaxX : 
                                (X > 0 ? X : 1));
@@ -227,23 +227,23 @@ namespace Simple {
                                (Y > 0 ? Y : 1));
              this->_sendCommand((AsEdit ? 'H' : 'f'), std::to_wstring(this->m_CurrentY) + L";" + std::to_wstring(this->m_CurrentX));
          }
-         void Terminal::CursorMove(const int Value, const TerminalCursorMovement Movement) {
+         void WANSITerminal::CursorMove(const int Value, const TerminalCursorMovement Movement) {
              this->_sendCommand((char)Movement, std::to_wstring(Value));
          }
-         void Terminal::SaveXY() {
+         void WANSITerminal::SaveXY() {
              // keeping track manually - will come in handy
              this->GetXY(this->m_SavedX, this->m_SavedY);
              // ANSI command to save current position
              this->_sendCommand('s', L"");
          }
-         void Terminal::RestoreXY() {
+         void WANSITerminal::RestoreXY() {
              // Keeping track manually - will come in handy
              this->m_CurrentX = this->m_SavedX;
              this->m_CurrentY = this->m_SavedY;
              // ANSI command to return to saved position
              this->_sendCommand('u', L"");
          }
-         void Terminal::SetForegroundColour(const int ForegroundColour) {
+         void WANSITerminal::SetForegroundColour(const int ForegroundColour) {
             switch (this->m_ColourMode) {
                 case TerminalColourModes::Modern: {
                                 // Modern terminals can support 256 (8bit) colours. starting at 0 & counting up. Like a normal system.
@@ -267,7 +267,7 @@ namespace Simple {
              } 
              this->m_ForegroundColour = ForegroundColour;
          }
-         void Terminal::SetBackgroundColour(const int BackgroundColour) {
+         void WANSITerminal::SetBackgroundColour(const int BackgroundColour) {
              // We could merge Fore & Back colours together for clever algorithmicness. I'd rather keep this readable & straight forward. So, I'm not clever.
             switch (this->m_ColourMode) {
                 case TerminalColourModes::Modern: {
@@ -290,10 +290,10 @@ namespace Simple {
                         break;
              } 
          }
-        void Terminal::SetConsoleColourMode(const TerminalColourModes Mode)  {
+        void WANSITerminal::SetConsoleColourMode(const TerminalColourModes Mode)  {
             this->m_ColourMode = Mode;
         }
-        void Terminal::SetTerminalAttribute(const TerminalAttributes Attribute, const bool State) {
+        void WANSITerminal::SetTerminalAttribute(const TerminalAttributes Attribute, const bool State) {
             // If the setting is in the same state, let's just not bother doing it again
             if (this->IsTerminalAttributeOn(Attribute) == State) {
                 return;
@@ -315,13 +315,13 @@ namespace Simple {
                 
             }
         }
-        TerminalColourModes Terminal::GetConsoleColourMode() {
+        TerminalColourModes WANSITerminal::GetConsoleColourMode() {
             return this->m_ColourMode;
         }
-        bool Terminal::IsTerminalAttributeOn(const TerminalAttributes Attribute) {
+        bool WANSITerminal::IsTerminalAttributeOn(const TerminalAttributes Attribute) {
             return (this->m_TerminalAttributes & Attribute) == Attribute;
         }
-        void Terminal::_initialize(bool EchoOn) {
+        void WANSITerminal::_initialize(bool EchoOn) {
             this->_loadTerminalSettings();
             this->_updateTerminalSettings(TerminalAttributes::Echo, EchoOn, false);
             this->_updateTerminalSettings(TerminalAttributes::LineBuffer, false);
@@ -331,15 +331,15 @@ namespace Simple {
             this->SetBackgroundColour(this->m_BackgroundColour);
 
         }
-        void Terminal::_updateTerminalSettings(TerminalAttributes Attribute, bool State, bool WriteSettingsNow) {
+        void WANSITerminal::_updateTerminalSettings(TerminalAttributes Attribute, bool State, bool WriteSettingsNow) {
             #ifdef __linux__
                 switch (Attribute) {
                     // If configured for Echo...
                     case TerminalAttributes::Echo: if (State) {
-                                                        // ...Turn it on in the Terminal
+                                                        // ...Turn it on in the WANSITerminal
                                                         this->m_CurrentTerminal.c_lflag |= ECHO;
                                                     } else {
-                                                        // ...Or, turn it off in Terminal
+                                                        // ...Or, turn it off in WANSITerminal
                                                         this->m_CurrentTerminal.c_lflag &= ~ECHO;
                                                     }
                                                     break;
@@ -353,28 +353,28 @@ namespace Simple {
                                                         break;
                 }
                 if (WriteSettingsNow) {
-                    // Update the settings to Terminal
+                    // Update the settings to WANSITerminal
                     tcsetattr(fileno(stdin), TCSANOW, &this->m_CurrentTerminal);
                 }
             #endif
         }
-        void Terminal::_loadTerminalSettings() {
+        void WANSITerminal::_loadTerminalSettings() {
             #ifdef __linux__
-            // Get Terminal I/O settings
+            // Get WANSITerminal I/O settings
             tcgetattr(fileno(stdin), &this->m_OriginalTerminal);
             // Copy them
             this->m_CurrentTerminal = this->m_OriginalTerminal;
             #endif
         }
-        void Terminal::_sendCommand(const char code, const std::wstring data) {
+        void WANSITerminal::_sendCommand(const char code, const std::wstring data) {
              this->Print(L"%s%s%c", EscapeSequenceBegin.c_str(), data.c_str(), code);
         }
-        wchar_t Terminal::_translate(const wchar_t Char) {
+        wchar_t WANSITerminal::_translate(const wchar_t Char) {
             return ((this->IsTerminalAttributeOn(TerminalAttributes::ExtendedAscii)) ? 
                     ((Char < 255 && Char > 127) ? ASCIIToUTF8Chars[Char] : Char)
                     : Char);
         }
-        std::wstring Terminal::_translate(const std::wstring String) {
+        std::wstring WANSITerminal::_translate(const std::wstring String) {
             std::wstring result;
             for (wchar_t character : String) {
                 result.push_back(this->_translate(character));

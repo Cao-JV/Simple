@@ -1,5 +1,5 @@
 /*
- * Simple Terminal v0.1αß
+ * Simple WANSITerminal v0.1αß
  *
  * An unsophisticated Terminal class for quick commandline development.
  *
@@ -40,13 +40,13 @@ using std::wstring;
              * @brief
              *
              */
-            class Terminal : ATerminal  {
+            class WANSITerminal : ATerminal  {
                 public:
-                    Terminal(bool EchoOn = true, std::string SystemLocale = "en_US.utf8");
-                    ~Terminal();
+                    WANSITerminal(bool EchoOn = true, std::string SystemLocale = "en_US.utf8");
+                    ~WANSITerminal();
                     virtual void    ClearScreen();
                     virtual void    ClearLine();
-                    virtual void    Flush();
+                    virtual void    FlushOut();
                     virtual void    Print(const wchar_t Char);
                     virtual void    Print(const wstring Format, ...);
                     virtual void    Print(const wchar_t *Format, ...);
