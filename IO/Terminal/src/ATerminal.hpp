@@ -39,7 +39,8 @@
                     ATerminal();
                     virtual ~ATerminal();
                     virtual void ClearScreen() = 0;
-                    virtual void ClearLine() = 0;
+                    virtual void ClearLine()   = 0;
+                    virtual void FlushOut()    = 0;
                     virtual void Print(const wchar_t Char) = 0;
                     virtual void Print(const std::wstring Format, ...) = 0;
                     virtual void Print(const wchar_t *Format, ...) = 0;

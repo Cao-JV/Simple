@@ -62,6 +62,9 @@ namespace Simple {
         void Terminal::ClearLine() {
             this->_sendCommand('K', std::to_wstring(TerminalClear::ToEnd));
         }
+        void Flush() {
+            wcout << endl;
+        }
         void Terminal::Print(const wchar_t Char) {
             wcout << this->_translate(Char);
             // We're letting the internal handlers parse the codes, so check if screen pos changed
