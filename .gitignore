@@ -40,3 +40,6 @@ build/CMakeFiles/Terminal.dir/DependInfo.cmake
 build/CMakeFiles/Terminal.dir/flags.make
 build/CMakeFiles/Terminal.dir/link.txt
 build/CMakeFiles/Terminal.dir/progress.make
+.vscode/launch.json
+.vscode/tasks.json
+build/.cmake/api/v1/reply/index-2022-05-08T01-18-22-0305.json
