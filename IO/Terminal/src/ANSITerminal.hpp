@@ -1,5 +1,5 @@
 /*
- * Simple WANSITerminal v0.1αß
+ * Simple ANSI Terminal v0.1αß
  *
  * An unsophisticated Terminal class for quick commandline development.
  *
@@ -34,10 +34,10 @@
 #ifdef __linux__
     #include <termios.h>
 #endif
-using std::wstring;
+using std::string;
     namespace Simple {
         namespace IO {
-            const std::wstring EscapeSequenceBegin = L"\u001b[";
+            const std::string EscapeSequenceBegin = "\u001b[";
 
             /**
              * @brief
@@ -50,14 +50,14 @@ using std::wstring;
                     virtual void    ClearScreen();
                     virtual void    ClearLine();
                     virtual void    FlushOut();
-                    virtual void    Print(const wchar_t Char);
-                    virtual void    Print(const wstring Format, ...);
-                    virtual void    Print(const wchar_t *Format, ...);
-                    virtual void    VPrint(const wstring Format, va_list Args);
-                    virtual void    PrintLn(const wchar_t *Format, ...);
-                    virtual void    PrintLn(const wstring Format, ...);
+                    virtual void    Print(const char Char);
+                    virtual void    Print(const string Format, ...);
+                    virtual void    Print(const char *Format, ...);
+                    virtual void    VPrint(const string Format, va_list Args);
+                    virtual void    PrintLn(const char *Format, ...);
+                    virtual void    PrintLn(const string Format, ...);
                     virtual int     GetChar(const int TimeOutMS = 0);
-                    virtual wstring GetLine(const int MaxLength = 0, const wchar_t Terminator = L'\n', const int TimeOutMS = 0);
+                    virtual string GetLine(const int MaxLength = 0, const char Terminator = L'\n', const int TimeOutMS = 0);
                     virtual void    GetMaxXY(int &X, int &Y);
                     virtual void    GetXY(int &X, int &Y);
                     virtual void    SetMaxXY(const int X, const int Y);
@@ -85,14 +85,14 @@ using std::wstring;
                                         ,m_MaxY
                                         ,m_ForegroundColour   = 7
                                         ,m_BackgroundColour   = 0;
-                    TerminalColourModes  m_ColourMode        = TerminalColourModes::Modern;
+                    TerminalColourModes  m_ColourMode         = TerminalColourModes::Modern;
                     TerminalAttributes   m_TerminalAttributes = TerminalAttributes::Echo | TerminalAttributes::ExtendedAscii;
                     virtual void _initialize(bool EchoOn);
                     virtual void _updateTerminalSettings(TerminalAttributes Attribute, bool State, bool WriteSettingsNow = true);
                     virtual void _loadTerminalSettings();
-                    virtual void _sendCommand(const char code, const std::wstring data);
-                    virtual wchar_t _translate(const wchar_t Char);
-                    virtual std::wstring _translate(const std::wstring);
+                    virtual void _sendCommand(const char code, const std::string data);
+                    virtual char _translate(const char Char);
+                    virtual std::string _translate(const std::string);
             };
         }
     }
