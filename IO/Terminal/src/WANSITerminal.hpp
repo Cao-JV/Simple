@@ -25,64 +25,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef TERMINAL_HPP
-#define TERMINAL_HPP
-    #include "ATerminal.hpp"
+#ifndef WANSITERMINAL_HPP
+#define WANSITERMINAL_HPP
+    #include "AANSITerminal.hpp"
 #ifdef __linux__
     #include <termios.h>
 #endif
+using std::wcout;
+using std::wcin;
+using std::endl;
 using std::wstring;
     namespace Simple {
         namespace IO {
-            const std::wstring EscapeSequenceBegin = L"\u001b[";
 
             /**
              * @brief
              *
              */
-            class WANSITerminal : ATerminal  {
+            class WANSITerminal : public AANSITerminal<wchar_t, std::wstring>  {
                 public:
                     WANSITerminal(bool EchoOn = true, std::string SystemLocale = "en_US.utf8");
                     ~WANSITerminal();
-                    virtual void    ClearScreen();
-                    virtual void    ClearLine();
-                    virtual void    FlushOut();
-                    virtual void    Print(const wchar_t Char);
-                    virtual void    Print(const wstring Format, ...);
-                    virtual void    Print(const wchar_t *Format, ...);
-                    virtual void    VPrint(const wstring Format, va_list Args);
-                    virtual void    PrintLn(const wchar_t *Format, ...);
-                    virtual void    PrintLn(const wstring Format, ...);
-                    virtual int     GetChar(const int TimeOutMS = 0);
-                    virtual wstring GetLine(const int MaxLength = 0, const wchar_t Terminator = L'\n', const int TimeOutMS = 0);
-                    virtual void    GetMaxXY(int &X, int &Y);
-                    virtual void    GetXY(int &X, int &Y);
-                    virtual void    SetMaxXY(const int X, const int Y);
-                    virtual void    SetXY(const int X, const int Y, const bool AsEdit = true);
-                    virtual void    CursorMove(const int Value, const TerminalCursorMovement Movement);
-                    virtual void    SaveXY();
-                    virtual void    RestoreXY();
-                    virtual void    SetForegroundColour(const int ForegroundColour);
-                    virtual void    SetBackgroundColour(const int BackgroundColour);
-                    virtual void    SetConsoleColourMode(const TerminalColourModes Mode);
-                    virtual void    SetTerminalAttribute(const TerminalAttributes Attribute, bool State);
-                    virtual TerminalColourModes GetConsoleColourMode();
-                    virtual bool    IsTerminalAttributeOn(const TerminalAttributes Attribute);
 
-                protected:
-                    virtual void _initialize(bool EchoOn);
-                    #ifdef __linux__
-                        struct termios  m_OriginalTerminal
-                                       ,m_CurrentTerminal;
-                    #endif
-                    virtual void _updateTerminalSettings(TerminalAttributes Attribute, bool State, bool WriteSettingsNow = true);
-                    virtual void _loadTerminalSettings();
-                    virtual void _sendCommand(const char code, const std::wstring data);
-                    virtual wchar_t _translate(const wchar_t Char);
-                    virtual std::wstring _translate(const std::wstring);
-
-                    const std::wstring   m_NumberFaces        = L"0123456789ABCDEF";
             };
         }
     }
-#endif // TERMINAL_HPP
+#endif // WANSITERMINAL_HPP
