@@ -34,7 +34,7 @@
     namespace Simple {
         namespace IO {
              template <typename CharType, typename StringType>
-             class ATerminal {
+             class AStdTerminal {
                  public:
                     ATerminal() = default;
                     virtual ~ATerminal() = default;
