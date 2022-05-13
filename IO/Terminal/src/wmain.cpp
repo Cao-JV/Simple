@@ -31,15 +31,13 @@
 #include<iostream>
 #include <string>
 
-#include "ANSITerminal.hpp"
+#include "WANSITerminal.hpp"
 
-using std::cout;
+using std::wcout;
 using std::endl;
 using std::string;
-using Simple::IO::ANSITerminal;
+using Simple::IO::WANSITerminal;
 using Simple::IO::ASCIIToUTF8Chars;
-
-
 /*
  * 
  */
@@ -54,88 +52,84 @@ int main(int argc, char** argv) {
     // Write the string to stream
     //std::string content( (std::istreambuf_iterator<char>(ifs) ),
     //                     (std::istreambuf_iterator<char>()    ) );
-    // Instantiate ANSITerminal
+    // Instantiate WANSITerminal
     
 
-   
-    
-    ANSITerminal console(false,  "");
+    WANSITerminal console(false,  "");
 
     console.ClearScreen();
-
     console.SetForegroundColour(7);
     console.SetBackgroundColour(0);
     console.SetMaxXY(200, 80);
     console.SetXY(1,1);
-    
-    console.Print("Welcome to SimpleConsole...\nTerminal set to 100 columns by 80 rows\n");
-    console.Print("Extended (8bit)ANSI/Extended (8bit)ASCII Test:\n");
-    console.Print("Foreground:\n");
+    console.Print(L"Welcome to SimpleConsole...\nTerminal set to 100 columns by 80 rows\n");
+    console.Print(L"Extended (8bit)ANSI/Extended (8bit)ASCII Test:\n");
+    console.Print(L"Foreground:\n");
     for (int index = 0; index < 16; index++) {
         for (int offset = 0; offset < 16; offset++) {
             int code = index * 16 + offset;
-            console.Print("\u001b[38;5;%im%c ", code, code);
-        }    
+            console.Print(L"\u001b[38;5;%im%c ", code, code);
+        }   
     }
-    console.Print("\nPress a key to continue...");
+    console.Print(L"\nPress a key to continue...");
     console.GetChar();
-    console.Print("Background:\n");
+    console.Print(L"Background:\n");
     for (int index = 0; index < 16; index++) {
         for (int offset = 0; offset < 16; offset++) {
             int code = index * 16 + offset;
-            console.Print("\u001b[48;5;%im%c ", code, code);
+            console.Print(L"\u001b[48;5;%im%c ", code, code);
         }   
     }
     console.SetForegroundColour(7);
     console.SetBackgroundColour(0);
-    console.Print("\nPress a key to continue...");
+    console.Print(L"\nPress a key to continue...");
     console.GetChar();
-    console.Print("\nLegacy ANSI (3bit)\n");
+    console.Print(L"\nLegacy ANSI (3bit)\n");
     console.SetConsoleColourMode(Simple::IO::TerminalColourModes::Legacy) ;
-    console.Print("Foreground\n");
+    console.Print(L"Foreground\n");
     for (int foreIndex = 0; foreIndex < 16; foreIndex++)  {
         console.SetForegroundColour(foreIndex);
-        if (foreIndex < 10) { console.Print(' '); }
-        console.Print("%i ", foreIndex);
+        if (foreIndex < 10) { console.Print(L' '); }
+        console.Print(L"%i ", foreIndex);
     }
     console.SetForegroundColour(7);
     console.SetBackgroundColour(0);
-    console.Print("\nPress a key to continue...");
+    console.Print(L"\nPress a key to continue...");
     console.GetChar();
-    console.Print("\nBackground:\n");
+    console.Print(L"\nBackground:\n");
     for (int backIndex  = 0; backIndex < 16; backIndex++) {
         console.SetBackgroundColour(backIndex);
-        if (backIndex < 10) { console.Print(' '); }
-        console.Print("%i ", backIndex);
+        if (backIndex < 10) { console.Print(L' '); }
+        console.Print(L"%i ", backIndex);
     }
     console.SetForegroundColour(7);
     console.SetBackgroundColour(0);
-    console.Print("\nPress a key to continue...");
+    console.Print(L"\nPress a key to continue...");
     console.GetChar();
-    cout << endl;
+    wcout << endl;
     console.GetMaxXY(x, y);
-    console.Print("Your Terminal is %i columns by %i rows\n", x,y);
-    console.Print("\nPress a key to continue...");
+    console.Print(L"Your Terminal is %i columns by %i rows\n", x,y);
+    console.Print(L"\nPress a key to continue...");
     console.GetChar();
     console.CursorMove(5, Simple::IO::TerminalCursorMovement::Right);
-    console.Print("Cursor has been moved right 5\nInput 1 Char (No cursor):");
+    console.Print(L"Cursor has been moved right 5\nInput 1 Char (No cursor):");
     console.SetTerminalAttribute(Simple::IO::TerminalAttributes::Cursor, false);
     console.GetChar(10);
     console.SetTerminalAttribute(Simple::IO::TerminalAttributes::Cursor, true);
     console.CursorMove(8, Simple::IO::TerminalCursorMovement::Up);
-    console.Print("Cursor has been moved up 8\nInput String 10 chars, enter terminated (Cursor):");
-    string result = console.GetLine(10);
-    console.Print("\nYou said %s!", result.c_str());
+    console.Print(L"Cursor has been moved up 8\nInput String 10 chars, enter terminated (Cursor):");
+    wstring result = console.GetLine(10);
+    console.Print(L"\nYou said %s!", result.c_str());
     int colour = 6;
     console.SetXY(1,1);
     console.SaveXY();
 
-    console.Print("Looping colour test...\n");
+    console.Print(L"Looping colour test...\n");
     console.SetTerminalAttribute(Simple::IO::TerminalAttributes::Cursor, false);
     for (int loops = 0; loops < 10000; loops++) {
         console.SetXY(1,2);
         console.SetForegroundColour(colour);
-        console.Print("Hello");
+        console.Print(L"Hello");
         if (colour == 6) {
             colour = 10;
         } else {
@@ -145,13 +139,13 @@ int main(int argc, char** argv) {
     }
     console.SetTerminalAttribute(Simple::IO::TerminalAttributes::Cursor, true);
     console.SetXY(1, 24);
-    console.Print("Setting Console to 80 columns by 25 rows");
+    console.Print(L"Setting Console to 80 columns by 25 rows");
     console.SetMaxXY(80, 25);
-    console.Print("Hex: %x", 28);
+    console.Print(L"Hex: %x", 28);
     console.GetXY(x, y);
-    console.Print("\n[%i, %i]GoodBye!\n", x, y);
+    console.Print(L"\n[%i, %i]GoodBye!\n", x, y);
     console.RestoreXY();
-    console.Print("Returning...");
+    console.Print(L"Returning...");
  
   return 0;
    /*

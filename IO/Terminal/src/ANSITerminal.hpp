@@ -43,10 +43,10 @@ using std::string;
              * @brief
              *
              */
-            class WANSITerminal   {
+            class ANSITerminal   {
                 public:
-                    WANSITerminal(bool EchoOn = true, std::string SystemLocale = "en_US.utf8");
-                    ~WANSITerminal();
+                    ANSITerminal(bool EchoOn = true, std::string SystemLocale = "en_US.utf8");
+                    ~ANSITerminal();
                     virtual void    ClearScreen();
                     virtual void    ClearLine();
                     virtual void    FlushOut();
@@ -91,7 +91,7 @@ using std::string;
                     virtual void _updateTerminalSettings(TerminalAttributes Attribute, bool State, bool WriteSettingsNow = true);
                     virtual void _loadTerminalSettings();
                     virtual void _sendCommand(const char code, const std::string data);
-                    virtual char _translate(const char Char);
+                    virtual std::string _translate(const unsigned char Char);
                     virtual std::string _translate(const std::string);
             };
         }
