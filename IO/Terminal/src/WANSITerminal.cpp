@@ -43,7 +43,7 @@ using std::wstring;
 
 namespace Simple {
     namespace IO {
-        WANSITerminal::WANSITerminal(bool EchoOn, std::string SystemLocale) {
+        WANSITerminal::WANSITerminal(bool EchoOn, wstring SystemLocale) : AStdTerminal::AStdTerminal(){
             //std::setlocale(LC_ALL, SystemLocale.c_str());
             this->_initialize(EchoOn);
         }
@@ -73,10 +73,10 @@ namespace Simple {
             this->VPrint(Format, args);
             va_end(args);
         }
-        void WANSITerminal::VPrint(const std::wstring Format, va_list Args) {
+        void WANSITerminal::VPrint(const wstring Format, va_list Args) {
             // We're going to call this over & over (& over) again in our app. Let's just hold on to the memory.
             static unsigned int i; // This is going to parse our ints
-            static std::wstring s;     // "     " "     "  "     "   strings
+            static wstring s;     // "     " "     "  "     "   strings
             static wchar_t formatOutput;
             
             for(int formatIndex = 0; formatIndex < Format.length(); formatIndex++) 
@@ -123,7 +123,7 @@ namespace Simple {
             }
             va_end(Args); 
         }
-        void WANSITerminal::Print(const std::wstring Format, ...) {
+        void WANSITerminal::Print(const wstring Format, ...) {
             va_list args; 
 
             va_start(args, Format);
@@ -138,7 +138,7 @@ namespace Simple {
             va_end(args);
             wcout << '\n';
         }
-        void WANSITerminal::PrintLn(const std::wstring Format, ...) {
+        void WANSITerminal::PrintLn(const wstring Format, ...) {
             va_list args; 
             va_start(args, Format);
             this->PrintLn(Format.c_str(), args);
@@ -157,7 +157,7 @@ namespace Simple {
             }
              return result;
          }
-         wstring WANSITerminal::GetLine(const int MaxLength, const wchar_t Terminator, const int TimeOutMS) {
+         wstring WANSITerminal::GetLine(const wchar_t Terminator, const int MaxLength, const int TimeOutMS) {
             wstring result = wstring();
             wchar_t keypress = { 0 };
             std::chrono::milliseconds maxtime{TimeOutMS};
@@ -176,7 +176,7 @@ namespace Simple {
                             (MaxLength == 0 || result.length() < MaxLength)) {
                            result.push_back(keypress);
                        }
-                   } 
+            } 
             return result;
          }
          void WANSITerminal::GetMaxXY(int &X, int &Y) {
@@ -198,7 +198,7 @@ namespace Simple {
                 ,endingIndex = 1;
 
              this->_sendCommand('n', L"6");
-             result = this->GetLine(0, L'R');
+             result = this->GetLine(L'R', 0);
 
              semiColonIndex = result.find_first_of(L';');
              endingIndex = result.find_first_of(L'R') - 1;
@@ -253,7 +253,7 @@ namespace Simple {
                                 // Colours are described 0 to 7 & are either high or low. Giving a combination of 16 (4bit) colours. 
                                 // Derive those colours from a less confusing scale of 0 to 15. It's broken like this because we used to have 2bit colour capability*.
                                 int newColour = ((ForegroundColour < 8) ? ForegroundColour + 30 : ForegroundColour + 82);
-                                std::wstring colourData;
+                                wstring colourData;
                                 colourData.append(std::to_wstring(newColour));
                                 this->_sendCommand('m', colourData);
                         }
@@ -278,7 +278,7 @@ namespace Simple {
                                 // Colours are described 0 to 7 & are either high or low. Giving a combination of 16 (4bit) colours. 
                                 // Derive those colours from a less confusing scale of 0 to 15. It's broken like this because we used to have 2bit colour capability*.
                                 int newColour = ((BackgroundColour < 8) ? BackgroundColour + 40 : BackgroundColour + 72);
-                                std::wstring colourData = std::to_wstring(newColour);
+                                wstring colourData = std::to_wstring(newColour);
                                 this->_sendCommand('m', colourData);
                         }
                         break;
@@ -363,18 +363,20 @@ namespace Simple {
             this->m_CurrentTerminal = this->m_OriginalTerminal;
             #endif
         }
-        void WANSITerminal::_sendCommand(const char code, const std::wstring data) {
+        void WANSITerminal::_sendCommand(const wchar_t code, const wstring data) {
              this->Print(L"%s%s%c", EscapeSequenceBegin.c_str(), data.c_str(), code);
         }
-        wchar_t WANSITerminal::_translate(const wchar_t Char) {
-            return ((this->IsTerminalAttributeOn(TerminalAttributes::ExtendedAscii)) ? 
+        wstring WANSITerminal::_translate(const wchar_t Char) {
+            wstring result;
+            result.push_back(((this->IsTerminalAttributeOn(TerminalAttributes::ExtendedAscii)) ? 
                     ((Char < 255 && Char > 127) ? ASCIIToUTF8Chars[Char] : Char)
-                    : Char);
+                    : Char));
+                return result;
         }
-        std::wstring WANSITerminal::_translate(const std::wstring String) {
-            std::wstring result;
+        wstring WANSITerminal::_translate(const wstring String) {
+            wstring result;
             for (wchar_t character : String) {
-                result.push_back(this->_translate(character));
+                result.append(this->_translate(character));
             }
             return result;
         }

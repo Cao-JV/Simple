@@ -36,8 +36,8 @@
              template <typename CharType, typename StringType>
              class AStdTerminal {
                  public:
-                    ATerminal() = default;
-                    virtual ~ATerminal() = default;
+                    AStdTerminal() = default;
+                    virtual ~AStdTerminal() = default;
                     virtual void ClearScreen() = 0;
                     virtual void ClearLine()   = 0;
                     virtual void FlushOut()    = 0;
@@ -63,6 +63,7 @@
                     virtual TerminalColourModes GetConsoleColourMode() = 0;
                     virtual bool IsTerminalAttributeOn(const TerminalAttributes Attribute) = 0;
                 protected:
+                    const StringType EscapeSequenceBegin;
                     int                  m_SavedX
                                         ,m_SavedY
                                         ,m_CurrentX
@@ -76,7 +77,7 @@
                     virtual void         _initialize(bool EchoOn) = 0;
                     virtual void         _updateTerminalSettings(TerminalAttributes Attribute, bool State, bool WriteSettingsNow = true) = 0;
                     virtual void         _loadTerminalSettings() = 0;
-                    virtual CharType     _translate(const CharType Char) = 0;
+                    virtual StringType   _translate(const CharType Char) = 0;
                     virtual StringType   _translate(const StringType) = 0;
             };
         }

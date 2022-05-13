@@ -28,6 +28,7 @@
 #ifndef TERMINAL_HPP
 #define TERMINAL_HPP
 #include "TerminalInfo.hpp"
+#include "AStdTerminal.hpp"
 #include <string.h>
 #include <stdio.h>
 #include <iostream>
@@ -37,13 +38,12 @@
 using std::string;
     namespace Simple {
         namespace IO {
-            const std::string EscapeSequenceBegin = "\u001b[";
 
             /**
              * @brief
              *
              */
-            class ANSITerminal   {
+            class ANSITerminal : AStdTerminal<char, string>  {
                 public:
                     ANSITerminal(bool EchoOn = true, std::string SystemLocale = "en_US.utf8");
                     ~ANSITerminal();
@@ -57,7 +57,7 @@ using std::string;
                     virtual void    PrintLn(const char *Format, ...);
                     virtual void    PrintLn(const string Format, ...);
                     virtual int     GetChar(const int TimeOutMS = 0);
-                    virtual string GetLine(const int MaxLength = 0, const char Terminator = L'\n', const int TimeOutMS = 0);
+                    virtual string GetLine(const char Terminator = '\n', const int MaxLength = 0,  const int TimeOutMS = 0);
                     virtual void    GetMaxXY(int &X, int &Y);
                     virtual void    GetXY(int &X, int &Y);
                     virtual void    SetMaxXY(const int X, const int Y);
@@ -73,6 +73,7 @@ using std::string;
                     virtual bool    IsTerminalAttributeOn(const TerminalAttributes Attribute);
 
                 protected:
+                    const std::string EscapeSequenceBegin = "\u001b[";
                     #ifdef __linux__
                         struct termios  m_OriginalTerminal
                                        ,m_CurrentTerminal;
@@ -91,7 +92,7 @@ using std::string;
                     virtual void _updateTerminalSettings(TerminalAttributes Attribute, bool State, bool WriteSettingsNow = true);
                     virtual void _loadTerminalSettings();
                     virtual void _sendCommand(const char code, const std::string data);
-                    virtual std::string _translate(const unsigned char Char);
+                    virtual std::string _translate(const char Char);
                     virtual std::string _translate(const std::string);
             };
         }

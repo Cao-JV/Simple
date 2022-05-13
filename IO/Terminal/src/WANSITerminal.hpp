@@ -27,6 +27,7 @@
  */
 #ifndef TERMINAL_HPP
 #define TERMINAL_HPP
+#include "AStdTerminal.hpp"
 #include "TerminalInfo.hpp"
 #include <string.h>
 #include <stdio.h>
@@ -37,15 +38,15 @@
 using std::wstring;
     namespace Simple {
         namespace IO {
-            const std::wstring EscapeSequenceBegin = L"\u001b[";
 
             /**
              * @brief
              *
              */
-            class WANSITerminal   {
+
+            class WANSITerminal : AStdTerminal<wchar_t, wstring>  {
                 public:
-                    WANSITerminal(bool EchoOn = true, std::string SystemLocale = "en_US.utf8");
+                    WANSITerminal(bool EchoOn = true, std::wstring SystemLocale = L"en_US.utf8");
                     ~WANSITerminal();
                     virtual void    ClearScreen();
                     virtual void    ClearLine();
@@ -57,7 +58,7 @@ using std::wstring;
                     virtual void    PrintLn(const wchar_t *Format, ...);
                     virtual void    PrintLn(const wstring Format, ...);
                     virtual int     GetChar(const int TimeOutMS = 0);
-                    virtual wstring GetLine(const int MaxLength = 0, const wchar_t Terminator = L'\n', const int TimeOutMS = 0);
+                    virtual wstring GetLine(const wchar_t Terminator = L'\n', const int MaxLength = 0, const int TimeOutMS = 0);
                     virtual void    GetMaxXY(int &X, int &Y);
                     virtual void    GetXY(int &X, int &Y);
                     virtual void    SetMaxXY(const int X, const int Y);
@@ -73,6 +74,7 @@ using std::wstring;
                     virtual bool    IsTerminalAttributeOn(const TerminalAttributes Attribute);
 
                 protected:
+                    const std::wstring EscapeSequenceBegin = L"\u001b[";
                     #ifdef __linux__
                         struct termios  m_OriginalTerminal
                                        ,m_CurrentTerminal;
@@ -90,8 +92,8 @@ using std::wstring;
                     virtual void _initialize(bool EchoOn);
                     virtual void _updateTerminalSettings(TerminalAttributes Attribute, bool State, bool WriteSettingsNow = true);
                     virtual void _loadTerminalSettings();
-                    virtual void _sendCommand(const char code, const std::wstring data);
-                    virtual wchar_t _translate(const wchar_t Char);
+                    virtual void _sendCommand(const wchar_t code, const std::wstring data);
+                    virtual std::wstring _translate(const wchar_t Char);
                     virtual std::wstring _translate(const std::wstring);
             };
         }

@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
     // Instantiate WANSITerminal
     
 
-    WANSITerminal console(false,  "");
+    WANSITerminal console(false,  L"");
 
     console.ClearScreen();
     console.SetForegroundColour(7);

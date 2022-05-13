@@ -44,7 +44,7 @@ using std::string;
 namespace Simple {
     namespace IO {
 
-        ANSITerminal::ANSITerminal(bool EchoOn, std::string SystemLocale) {
+        ANSITerminal::ANSITerminal(bool EchoOn, std::string SystemLocale) :  AStdTerminal(){
             //std::setlocale(LC_ALL, SystemLocale.c_str());
             this->_initialize(EchoOn);
         }
@@ -165,7 +165,7 @@ namespace Simple {
             }
              return result;
          }
-         string ANSITerminal::GetLine(const int MaxLength, const char Terminator, const int TimeOutMS) {
+         string ANSITerminal::GetLine(const char Terminator, const int MaxLength, const int TimeOutMS) {
             string result = string();
             char keypress = { 0 };
             std::chrono::milliseconds maxtime{TimeOutMS};
@@ -206,12 +206,20 @@ namespace Simple {
                 ,endingIndex = 1;
 
              this->_sendCommand('n', "6");
-             result = this->GetLine(0, 'R');
-
-             semiColonIndex = result.find_first_of(';');
-             endingIndex = result.find_first_of('R') - 1;
-             X = std::stoi(result.substr(startingIndex, semiColonIndex - startingIndex));
-             Y = std::stoi(result.substr(semiColonIndex + 1, endingIndex - (semiColonIndex + 1)));
+             result = this->GetLine('R', 0);
+             if (result.length()) {
+                cout << "(" << result << ")" << endl;
+                semiColonIndex = result.find_first_of(';');
+                endingIndex = result.find_first_of('R') - 1;
+                if (semiColonIndex == startingIndex) {
+                    X = 1;
+                } else {
+                    X = std::stoi(result.substr(startingIndex, semiColonIndex - startingIndex));
+                }
+                Y = std::stoi(result.substr(semiColonIndex + 1, endingIndex - (semiColonIndex + 1)));
+             } else {
+                 cout << "!darn!";
+             }
              #endif
          }
          void ANSITerminal::SetMaxXY(const int X, const int Y) {
@@ -374,12 +382,13 @@ namespace Simple {
         void ANSITerminal::_sendCommand(const char code, const std::string data) {
             this->Print("%s%s%c", EscapeSequenceBegin.c_str(), data.c_str(), code);
         }
-        std::string ANSITerminal::_translate(const unsigned char Char) {
+        std::string ANSITerminal::_translate(const char Char) {
              std::string result = {0};
 
-            if (this->IsTerminalAttributeOn(TerminalAttributes::ExtendedAscii) && (Char > 127)) {
+            if (this->IsTerminalAttributeOn(TerminalAttributes::ExtendedAscii) && (Char < 0)) {
                 char     output[3]  = {0};
-                wchar_t  input[1]  = {ASCIIToUTF8Chars[Char]};
+                // life is good, until you try to call a negative array indice.
+                wchar_t  input[1]  = {ASCIIToUTF8Chars[(unsigned char)Char]};
                 int      size      =  0 ;
                 size = wcstombs(output, input, 3);
                 result.push_back(output[0]);
