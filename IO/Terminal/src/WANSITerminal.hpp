@@ -79,16 +79,6 @@ using std::wstring;
                         struct termios  m_OriginalTerminal
                                        ,m_CurrentTerminal;
                     #endif
-                    int                  m_SavedX
-                                        ,m_SavedY
-                                        ,m_CurrentX
-                                        ,m_CurrentY
-                                        ,m_MaxX
-                                        ,m_MaxY
-                                        ,m_ForegroundColour   = 7
-                                        ,m_BackgroundColour   = 0;
-                    TerminalColourModes  m_ColourMode        = TerminalColourModes::Modern;
-                    TerminalAttributes   m_TerminalAttributes = TerminalAttributes::Echo | TerminalAttributes::ExtendedAscii;
                     virtual void _initialize(bool EchoOn);
                     virtual void _updateTerminalSettings(TerminalAttributes Attribute, bool State, bool WriteSettingsNow = true);
                     virtual void _loadTerminalSettings();
