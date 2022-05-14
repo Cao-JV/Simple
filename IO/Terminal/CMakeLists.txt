@@ -4,14 +4,31 @@ set(CMAKE_C_COMPILER /usr/bin/clang-12)
 
 # specify the C++ params
 set(CMAKE_CXX_COMPILER /usr/bin/clang++-12)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # set the project name
-project(Terminal)
-
-# add the executable
+project(Terminal VERSION 0.01)
 include_directories(${PROJECT_SOURCE_DIR} /usr/include)
-add_executable(WTerminal src/WANSITerminal.cpp src/wmain.cpp)
-add_executable(Terminal src/ANSITerminal.cpp src/main.cpp)
+
+# CMake instructions to make the static lib
+
+ADD_LIBRARY( SimpleANSITerminal STATIC src/ANSITerminal.cpp )
+ADD_LIBRARY( SimpleWANSITerminal STATIC src/WANSITerminal.cpp )
+
+
+
+SET( TERM_EXE TerminalTest )
+SET( WTERM_EXE WTerminalTest )
+# add the executable
+add_executable( ${TERM_EXE}  src/main.cpp )
+add_executable( ${WTERM_EXE} src/wmain.cpp )
+
+
+TARGET_LINK_LIBRARIES( ${TERM_EXE}
+                       SimpleANSITerminal )
+TARGET_LINK_LIBRARIES( ${WTERM_EXE}
+                       SimpleWANSITerminal )
+
+
 

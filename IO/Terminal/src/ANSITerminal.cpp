@@ -262,7 +262,7 @@ namespace Simple {
                                 // Modern terminals can support 256 (8bit) colours. starting at 0 & counting up. Like a normal system.
                                 // However, the original spec had already broke the colours into 8-index pages (see below). So this choice of commands seems arbitrary &
                                 // unintuitive. I've written this in C++, let that sink in.
-                                this->_sendCommand('m', "0;38;5;" + std::to_string(ForegroundColour));
+                                this->_sendCommand('m', "38;5;" + std::to_string(ForegroundColour));
                             }
                             break;
                 case TerminalColourModes::Legacy: {
@@ -287,7 +287,7 @@ namespace Simple {
                                 // Modern terminals can support 256 (8bit) colours. starting at 0 & counting up. Like a normal system.
                                 // However, the original spec had already broke the colours into 8-index pages (see below). So this choice of commands seems arbitrary &
                                 // unintuitive. I've written this in C++, let that sink in.
-                                this->_sendCommand('m', "0;48;5;" + std::to_string(BackgroundColour));
+                                this->_sendCommand('m', "48;5;" + std::to_string(BackgroundColour));
                             }
                             break;
                 case TerminalColourModes::Legacy: {
