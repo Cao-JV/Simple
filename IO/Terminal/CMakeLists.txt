@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # set the project name
-project(Terminal VERSION 0.01)
+project(SimpleTerminal VERSION 0.01)
 include_directories(${PROJECT_SOURCE_DIR} /usr/include)
 
 # CMake instructions to make the static lib
