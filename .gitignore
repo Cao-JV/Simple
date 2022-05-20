@@ -192,3 +192,9 @@ IO/Logging/libSimpleWLogger.a
 IO/Logging/LogTest
 IO/Logging/WLogTest
 IO/Logging/CMakeCache.txt
+IO/Logging/CMakeFiles/Progress/7
+IO/Logging/CMakeFiles/SimpleLogger.dir/src/ALogger.cpp.o
+IO/Logging/CMakeFiles/SimpleWLogger.dir/src/ALogger.cpp.o
+build/.cmake/api/v1/reply/index-2022-05-20T02-18-29-0848.json
+IO/Logging/Makefile
+IO/Logging/log/log.log

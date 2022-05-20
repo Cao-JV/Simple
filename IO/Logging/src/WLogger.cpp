@@ -26,3 +26,13 @@
  * THE SOFTWARE.
  */
 #include "WLogger.hpp"
+namespace Simple {
+    namespace IO {
+                WLogger::WLogger(const std::wstring FileName) : ALogger<wstring>(FileName)  {
+
+                }
+                WLogger::~WLogger() {
+
+                }
+    } // NS: IO
+} // NS: SImple

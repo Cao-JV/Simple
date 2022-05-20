@@ -27,10 +27,14 @@
  */
 #ifndef ALOGGER_HPP
 #define ALOGGER_HPP
-#include <stdio.h>
-#include <iostream>
+
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
 namespace Simple {
     namespace IO {
+
         enum LogLevel  {
              Trace   = 100
             ,Debug   = 200
@@ -39,45 +43,53 @@ namespace Simple {
             ,Error   = 500
             ,Fatal   = 600
         };
-
-        template<typename T> struct OutputSelector;
-
-        template<> struct OutputSelector<char> { static std::ostream &OutStream; };
-        std::ostream &OutputSelector<char>::OutStream = std::cout;
-
-        template<> struct OutputSelector<wchar_t> { static std::wostream &OutStream; };
-        std::wostream &OutputSelector<wchar_t>::OutStream = std::wcout;
-
-
-        template <typename CharType, class StringType>
+        template <class StringType>
         class ALogger {
             public:
-                ALogger() = default;
+                ALogger(const StringType FileName)  {
+                    this->SetLogFileName(FileName);
+                }
                 ~ALogger() = default;
-                virtual void Write(StringType Message, LogLevel Level) = 0;
-                virtual void Write(StringType Message) = 0;
-                virtual StringType GetLogFileName() {
-                    return this->m_LogFileName;
+                virtual void Write(StringType Message, LogLevel Level);
+                virtual void Write(StringType Message);
+                virtual void SetLogFileLocation(const StringType FileName) {
+                    this->SetLogFileName(FileName);
                 }
-                virtual bool IsFileNameDate() {
-                    return this->IsFileNameDate();
+                virtual void SetLogFileName(const StringType FileName)  {
+                    fs::path filePath(FileName);
+                    if (fs::is_directory(filePath.parent_path())) {
+                        // Nothing to see here. Just easier to read positives
+                    } else {
+                        fs::create_directory(filePath.parent_path());
+                    }
+                    this->_FilePath = filePath;
                 }
-                virtual void SetLogFileInfo(const StringType DirectoryName, const StringType FileName) {
-                    this->_LogFileName = FileName;
-                    this->_LogDirectoryName = DirectoryName;
-                    return &this;
+                virtual void SetUseDateInFileName(const bool Yes) {
+                    this->_UseDateInFileName = Yes;
                 }
-                virtual void SetLogFileInfo(const bool Yes) {
-                    this->_IsFileNameDate = Yes;
+                virtual StringType GetLogFileLocation();
+                virtual StringType GetLogDirectoryName();
+                virtual StringType GetLogFileName();
+                virtual bool UsingDateInFileName() {
+                    return this->_UseDateInFileName;
                 }
             protected:
-                StringType   _LogDirectoryName
-                            ,_LogFileName;
-                LogLevel     _LogLevelDefault = LogLevel::Info;
-                bool         _IsFileNameDate = true;
-                std::basic_ostream<CharType> &_Output = OutputSelector<CharType>::OutStream;
+                fs::path      _FilePath;
+                LogLevel      _LogLevelMinimum = LogLevel::Debug
+                             ,_LogLevelDefault = LogLevel::Info;
+                bool         _UseDateInFileName = true;
+
+                virtual tm _GetTimeStamp() {
+                    auto timePointNow = std::chrono::system_clock::now();
+                    std::time_t secondsFromEpochNow = std::chrono::system_clock::to_time_t(timePointNow);
+                    tm result = *std::localtime(&secondsFromEpochNow);
+                    return result;
+                }
                 
         };
-    }
-}
+    
+
+
+    } // NS: IO
+} // NS: Simple
 #endif // ALOGGER_HPP

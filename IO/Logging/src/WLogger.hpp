@@ -27,5 +27,19 @@
  */
 #ifndef WLOGGER_HPP
 #define WLOGGER_HPP
+#include <string>
 #include "ALogger.hpp"
+
+using std::wstring;
+namespace Simple {
+    namespace IO {
+
+        class WLogger : public ALogger<wstring> {
+            public:
+                WLogger(const std::wstring FileName);
+                ~WLogger();
+        };
+        
+    } // NS: IO
+} // NS: Simple
 #endif // WLOGGER_HPP

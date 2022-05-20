@@ -27,5 +27,20 @@
  */
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
+
+#include <string>
 #include "ALogger.hpp"
+
+using std::string;
+namespace Simple {
+    namespace IO {
+
+        class Logger : public ALogger<string> {
+            public:
+                Logger(const std::string FileName);
+                ~Logger();
+        };
+        
+    } // NS: IO
+} // NS: Simple
 #endif // LOGGER_HPP

@@ -162,6 +162,36 @@ SimpleLogger/fast:
 	$(MAKE) -f CMakeFiles/SimpleLogger.dir/build.make CMakeFiles/SimpleLogger.dir/build
 .PHONY : SimpleLogger/fast
 
+src/ALogger.o: src/ALogger.cpp.o
+
+.PHONY : src/ALogger.o
+
+# target to build an object file
+src/ALogger.cpp.o:
+	$(MAKE) -f CMakeFiles/SimpleWLogger.dir/build.make CMakeFiles/SimpleWLogger.dir/src/ALogger.cpp.o
+	$(MAKE) -f CMakeFiles/SimpleLogger.dir/build.make CMakeFiles/SimpleLogger.dir/src/ALogger.cpp.o
+.PHONY : src/ALogger.cpp.o
+
+src/ALogger.i: src/ALogger.cpp.i
+
+.PHONY : src/ALogger.i
+
+# target to preprocess a source file
+src/ALogger.cpp.i:
+	$(MAKE) -f CMakeFiles/SimpleWLogger.dir/build.make CMakeFiles/SimpleWLogger.dir/src/ALogger.cpp.i
+	$(MAKE) -f CMakeFiles/SimpleLogger.dir/build.make CMakeFiles/SimpleLogger.dir/src/ALogger.cpp.i
+.PHONY : src/ALogger.cpp.i
+
+src/ALogger.s: src/ALogger.cpp.s
+
+.PHONY : src/ALogger.s
+
+# target to generate assembly for a file
+src/ALogger.cpp.s:
+	$(MAKE) -f CMakeFiles/SimpleWLogger.dir/build.make CMakeFiles/SimpleWLogger.dir/src/ALogger.cpp.s
+	$(MAKE) -f CMakeFiles/SimpleLogger.dir/build.make CMakeFiles/SimpleLogger.dir/src/ALogger.cpp.s
+.PHONY : src/ALogger.cpp.s
+
 src/Logger.o: src/Logger.cpp.o
 
 .PHONY : src/Logger.o
@@ -282,6 +312,9 @@ help:
 	@echo "... LogTest"
 	@echo "... SimpleWLogger"
 	@echo "... SimpleLogger"
+	@echo "... src/ALogger.o"
+	@echo "... src/ALogger.i"
+	@echo "... src/ALogger.s"
 	@echo "... src/Logger.o"
 	@echo "... src/Logger.i"
 	@echo "... src/Logger.s"
