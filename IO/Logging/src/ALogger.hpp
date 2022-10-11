@@ -43,19 +43,22 @@ namespace Simple {
             ,Error   = 500
             ,Fatal   = 600
         };
-        template <class StringType>
+        template <class CharType>
         class ALogger {
             public:
-                ALogger(const StringType FileName)  {
+                using LogString = std::basic_string<CharType>;
+                ALogger(const LogString FileName)  {
                     this->SetLogFileName(FileName);
                 }
                 ~ALogger() = default;
-                virtual void Write(StringType Message, LogLevel Level);
-                virtual void Write(StringType Message);
-                virtual void SetLogFileLocation(const StringType FileName) {
+                virtual void Write(const LogString Message, LogLevel Level);
+                virtual void Write(const LogString Message) {
+                    this->Write(Message, this->_LogLevelDefault);
+                }
+                virtual void SetLogFileLocation(const LogString FileName) {
                     this->SetLogFileName(FileName);
                 }
-                virtual void SetLogFileName(const StringType FileName)  {
+                virtual void SetLogFileName(const LogString FileName)  {
                     fs::path filePath(FileName);
                     if (fs::is_directory(filePath.parent_path())) {
                         // Nothing to see here. Just easier to read positives
@@ -67,9 +70,9 @@ namespace Simple {
                 virtual void SetUseDateInFileName(const bool Yes) {
                     this->_UseDateInFileName = Yes;
                 }
-                virtual StringType GetLogFileLocation();
-                virtual StringType GetLogDirectoryName();
-                virtual StringType GetLogFileName();
+                virtual LogString GetLogFileLocation();
+                virtual LogString GetLogDirectoryName();
+                virtual LogString GetLogFileName();
                 virtual bool UsingDateInFileName() {
                     return this->_UseDateInFileName;
                 }
@@ -77,7 +80,7 @@ namespace Simple {
                 fs::path      _FilePath;
                 LogLevel      _LogLevelMinimum = LogLevel::Debug
                              ,_LogLevelDefault = LogLevel::Info;
-                bool         _UseDateInFileName = true;
+                bool          _UseDateInFileName = true;
 
                 virtual tm _GetTimeStamp() {
                     auto timePointNow = std::chrono::system_clock::now();

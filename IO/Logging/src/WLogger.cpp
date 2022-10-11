@@ -28,7 +28,7 @@
 #include "WLogger.hpp"
 namespace Simple {
     namespace IO {
-                WLogger::WLogger(const std::wstring FileName) : ALogger<wstring>(FileName)  {
+                WLogger::WLogger(const std::basic_string<wchar_t> FileName) : ALogger<wchar_t>(FileName)  {
 
                 }
                 WLogger::~WLogger() {

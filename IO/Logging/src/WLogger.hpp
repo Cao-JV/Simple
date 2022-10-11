@@ -34,9 +34,9 @@ using std::wstring;
 namespace Simple {
     namespace IO {
 
-        class WLogger : public ALogger<wstring> {
+        class WLogger : public ALogger<wchar_t> {
             public:
-                WLogger(const std::wstring FileName);
+                WLogger(const std::basic_string<wchar_t> FileName);
                 ~WLogger();
         };
         

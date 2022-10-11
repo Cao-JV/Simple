@@ -28,7 +28,7 @@
 #include "Logger.hpp"
 namespace Simple {
     namespace IO {
-                Logger::Logger(const std::string FileName) : ALogger<string>(FileName)  {
+                Logger::Logger(const std::string FileName) : ALogger<char>(FileName)  {
 
                 }
                 Logger::~Logger() {

@@ -18,7 +18,8 @@ using namespace Simple::IO;
         }
 
 int main(int argc, char** argv) {
-    Simple::IO::Logger log("log/log.log");
-    log.Write("Dickshit");
+    Simple::IO::ALogger lb("log/log.log");
+    lb.Write("New Unwide Alternate Test");
+    std::basic_string h = L"Hello";
     return 0;
 }

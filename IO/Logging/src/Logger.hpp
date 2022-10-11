@@ -35,7 +35,7 @@ using std::string;
 namespace Simple {
     namespace IO {
 
-        class Logger : public ALogger<string> {
+        class Logger : public ALogger<char> {
             public:
                 Logger(const std::string FileName);
                 ~Logger();
