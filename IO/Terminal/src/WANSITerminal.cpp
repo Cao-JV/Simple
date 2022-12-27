@@ -2,6 +2,7 @@
  * Simple WANSITerminal v0.1αß
  *
  * An unsophisticated WANSITerminal class for quick commandline development.
+ * This Is the wide terminal, UTF16+, version.
  * 
  *  The MIT License
  *

@@ -2,7 +2,8 @@
  * Simple ANSI Terminal v0.1αß
  *
  * An unsophisticated ANSITerminal class for quick commandline development.
- * 
+ * This Is the standard terminal UTF8 ersion - using non-wide characters.
+ *
  *  The MIT License
  *
  * Copyright 2022, CaoS.

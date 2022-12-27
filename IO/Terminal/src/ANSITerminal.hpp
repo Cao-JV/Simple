@@ -2,6 +2,7 @@
  * Simple ANSI Terminal v0.1αß
  *
  * An unsophisticated Terminal class for quick commandline development.
+ * This Is the standard terminal UTF8 version - using non-wide characters.
  *
  *  The MIT License
  *
