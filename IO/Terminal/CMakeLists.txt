@@ -1,34 +1,74 @@
-cmake_minimum_required(VERSION 3.1.0)
-#specify C params
-set(CMAKE_C_COMPILER /usr/bin/clang-15)
+# SimpleTerminal - A library for creating terminal-based systems (e.g. VT1.03)
+# Provides basic character-based input & output routines
+# Part of the Simple C++ Library
+#
+# Jagged\Verge
+# Copyright (c) 2022-2025, Cao Smith
 
-# specify the C++ params
-set(CMAKE_CXX_COMPILER /usr/bin/clang++-15)
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+cmake_minimum_required(VERSION 3.16)
 
-# set the project name
-project(Terminal VERSION 0.01)
-include_directories(${PROJECT_SOURCE_DIR} /usr/include)
+project(SimpleTerminal LANGUAGES CXX)
 
-# CMake instructions to make the static lib
+# Create the ANSI (standard) terminal static library
+add_library(SimpleANSITerminal STATIC
+    src/ANSITerminal.cpp
+)
 
-ADD_LIBRARY( SimpleANSITerminal STATIC src/ANSITerminal.cpp )
-ADD_LIBRARY( SimpleWANSITerminal STATIC src/WANSITerminal.cpp )
+# Create the wide (UTF-16) terminal static library
+add_library(SimpleWANSITerminal STATIC
+    src/WANSITerminal.cpp
+)
 
+# Target settings for SimpleANSITerminal
+target_include_directories(SimpleANSITerminal PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include>
+)
+target_compile_features(SimpleANSITerminal PUBLIC cxx_std_23)
 
+# Target settings for SimpleWANSITerminal
+target_include_directories(SimpleWANSITerminal PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include>
+)
+target_compile_features(SimpleWANSITerminal PUBLIC cxx_std_23)
 
-SET( TERM_EXE TerminalTest )
-SET( WTERM_EXE WTerminalTest )
-# add the executable
-add_executable( ${TERM_EXE}  src/main.cpp )
-add_executable( ${WTERM_EXE} src/wmain.cpp )
+# Create test executables
+add_executable(TerminalTest
+    src/main.cpp
+)
+target_link_libraries(TerminalTest PRIVATE SimpleANSITerminal)
 
+add_executable(WTerminalTest
+    src/wmain.cpp
+)
+target_link_libraries(WTerminalTest PRIVATE SimpleWANSITerminal)
 
-TARGET_LINK_LIBRARIES( ${TERM_EXE}
-                       SimpleANSITerminal )
-TARGET_LINK_LIBRARIES( ${WTERM_EXE}
-                       SimpleWANSITerminal )
+# Install ANSI terminal library
+install(TARGETS SimpleANSITerminal
+    EXPORT SimpleTerminalTargets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
 
+# Install wide terminal library
+install(TARGETS SimpleWANSITerminal
+    EXPORT SimpleTerminalTargets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
 
+# Install headers
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+    DESTINATION include/SimpleTerminal
+    FILES_MATCHING PATTERN "*.h"
+)
 
+# Export target config for find_package()
+install(EXPORT SimpleTerminalTargets
+    FILE SimpleTerminalTargets.cmake
+    NAMESPACE SimpleTerminal::
+    DESTINATION lib/cmake/SimpleTerminal
+)
